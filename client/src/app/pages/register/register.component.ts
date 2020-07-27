@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { User } from 'src/app/models/user.model';
-import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -19,7 +19,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private userService: UserService
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
@@ -35,7 +35,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   register(form: NgForm) {
     console.log('beginning of the registration process');
     // make sure the user isn't trying to register while he's logged in
-    if(!this.userService.isLogged()) {
+    if(!this.authService.isLogged()) {
       // prepare the user in the correct format for creation
       this.user = new User();
       this.user.username = form.controls.username.value;
@@ -47,7 +47,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       // a little log for testing purposes
       console.log(this.user);
 
-      this.userService.signup(this.user).subscribe(
+      this.authService.signup(this.user).subscribe(
         (user) => {
           this.error = false;
           this.success = true;

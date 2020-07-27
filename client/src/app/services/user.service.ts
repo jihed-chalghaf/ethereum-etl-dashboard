@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from "../models/user.model";
 import { EnvService } from './env.service';
 import { Router } from '@angular/router';
-import { map, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { USERS } from './../globals/global_variables';
 import { LocalService } from './local.service';
 
@@ -21,40 +21,6 @@ export class UserService {
     private router: Router,
     private localService: LocalService
   ) { }
-
-  login(user: User) {
-    const credentials = {email: user.email, password: user.password};
-    let headers: HttpHeaders = new HttpHeaders();
-    headers.append('Content-Type', 'application/json');
-    headers.append('No-Auth', 'True');
-    return this.http.post(
-      `${this.envService.apiUrl}/login`,
-       JSON.stringify(credentials),
-       {headers}
-       );
-  }
-
-  logout(){
-    
-    return this.http.post(`${this.envService.apiUrl}/logout`,{}).pipe(
-      tap(response=>{
-        this.router.navigate(['/login']);
-      })
-    );
-  }
-
-  signup(user: User) {
-    let headers: HttpHeaders = new HttpHeaders();
-    headers.append("No-Auth", "True");
-
-    return this.http.post<User>(`${this.envService.apiUrl + USERS}`, user, {
-      headers
-    });
-  }
-
-  isLogged() {
-    return this.localService.getJsonValue('token') != null;
-  }
 
   getUsers() {
     return this.http.get<User[]>(`${this.envService.apiUrl + USERS}`);

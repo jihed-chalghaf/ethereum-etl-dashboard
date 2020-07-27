@@ -3,6 +3,7 @@ import { User } from 'src/app/models/user.model';
 import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   constructor(
     private userService: UserService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
@@ -27,12 +29,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   login(form: NgForm) {
     console.log('login process starting..');
-    if(!this.userService.isLogged()) {
+    if(!this.authService.isLogged()) {
       this.user = new User();
       this.user.email = form.controls.email.value;
       this.user.password = form.controls.password.value;
       console.log('##User## => ' + this.user);
-      this.userService.login(this.user).subscribe(
+      this.authService.login(this.user).subscribe(
         (result) => {
           this.error = false;
           this.userService.saveTokenLocally(result);
