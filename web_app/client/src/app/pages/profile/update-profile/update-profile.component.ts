@@ -5,12 +5,12 @@ import {Gender} from "../../../models/enum/Gender";
 import {User} from "../../../models/user.model";
 import {Profile} from "../../../models/profile.model";
 import {Address} from "../../../models/address.model";
-import {Country} from "../../../models/country.model";
 import {DatePipe} from "@angular/common";
 import {ImageService} from "../../../services/image.service";
 import {UserService} from "../../../services/user.service";
 import {CrudService} from "../../../services/crud.service";
 import {API_URL, IMG_URL, USERS_PROFILE} from "../../../globals/global_variables";
+import { Country } from 'src/app/models/enum/Country';
 
 @Component({
   selector: 'app-update-profile',
@@ -22,12 +22,12 @@ export class UpdateProfileComponent implements OnInit {
   dateFormat = 'yyyy/MM/dd';
   profileToCreate: FormGroup;
   gender = Gender;
+  country = Country;
   fileData: any;
   imageEditClicked = false;
   currentUser: User = new User();
   currentProfile: Profile = new Profile();
   currentAddress: Address = new Address();
-  currentCountry: Country = new Country();
   public image = null;
   pipe = new DatePipe('en-US');
   constructor(private formBuilder: FormBuilder,
@@ -44,10 +44,7 @@ export class UpdateProfileComponent implements OnInit {
         this.currentProfile = this.currentUser.profile;
         if (this.currentProfile){
           this.currentAddress = this.currentProfile.address;
-          if(this.currentAddress){
-            this.currentCountry = this.currentAddress.country;
-            console.log(this.currentUser.username);
-          }
+          console.log(this.currentUser.username);
         }
         this.initializeForm();
       }
@@ -63,6 +60,7 @@ export class UpdateProfileComponent implements OnInit {
       street: '',
       city: '',
       postalCode: '',
+      country: ''
     });
     // fetch current user image
     this.imageService.getImage().subscribe(
@@ -75,10 +73,7 @@ export class UpdateProfileComponent implements OnInit {
       }
     )
   }
-  setCountry(country){
-    this.currentCountry.name=country.name;
-    console.log(this.currentCountry.name);
-  }
+
   initializeForm(){
     this.profileToCreate.controls['username'].setValue(this.currentUser.username);
     console.log('init'+this.profileToCreate.value.username);
@@ -91,6 +86,7 @@ export class UpdateProfileComponent implements OnInit {
       if (this.currentAddress){
         this.profileToCreate.controls['street'].setValue(this.currentAddress.street);
         this.profileToCreate.controls['postalCode'].setValue(this.currentAddress.postal_code);
+        this.profileToCreate.controls['country'].setValue(this.currentAddress.country);
       }
     }
   }
@@ -123,9 +119,7 @@ export class UpdateProfileComponent implements OnInit {
             street: this.profileToCreate.value.street,
             postal_code: this.profileToCreate.value.postalCode,
             city: this.profileToCreate.value.city,
-            country: {
-              name: this.currentCountry.name
-            }
+            country: this.profileToCreate.value.country
           }
         }
       }
