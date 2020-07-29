@@ -33,13 +33,13 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.user = new User();
       this.user.email = form.controls.email.value;
       this.user.password = form.controls.password.value;
-      console.log('##User## => ' + this.user);
+      console.log('##User## => ', this.user);
       this.authService.login(this.user).subscribe(
         (result) => {
           this.error = false;
           this.userService.saveTokenLocally(result);
           this.userService.saveUserLocally(result);
-          this.router.navigateByUrl('/profile');
+          this.router.navigateByUrl('/auth/user-profile');
         },
         (err) => {
           this.error = true;

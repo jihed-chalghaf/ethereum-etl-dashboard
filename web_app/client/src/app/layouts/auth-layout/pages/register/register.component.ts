@@ -39,8 +39,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
       // prepare the user in the correct format for creation
       this.user = new User();
       this.user.username = form.controls.username.value;
-      this.user.firstName = form.controls.firstname.value;
-      this.user.lastName = form.controls.lastname.value;
+      this.user.firstName = form.controls.firstName.value;
+      this.user.lastName = form.controls.lastName.value;
       this.user.email = form.controls.email.value;
       this.user.password = form.controls.password.value;
 
@@ -51,8 +51,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
         (user) => {
           this.error = false;
           this.success = true;
-          console.log("##created_user## => " + user);
-          this.router.navigateByUrl('/login');
+          console.log("##created_user## => ", user);
+          this.router.navigateByUrl('/auth/login');
         },
         (error) => {
           if(error.status === 406) {
