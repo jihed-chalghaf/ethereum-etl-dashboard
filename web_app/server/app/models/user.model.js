@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const profileSchema = require('../models/profile.model.js').profileSchema;
+
 const userSchema = mongoose.Schema({
 
  username :{
@@ -21,32 +23,13 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true
    },
- address:{
-     city :{
-         type: String,
-         required: true
-     },
-     postal_code : {
-         type: Number,
-         required: true
-     },
-     street : {
-         type: String,
-         required: true
-     },
-     country : {
-         type: String,
-         required: true
-     },
-     state : {
-         type: String,
-         required: true
-     }
+
+    role : String,
+    profile:profileSchema
  },
- role : String,
- age : String,
- gender : String
-}, {
+
+ {
     timestamps: true
 });
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+module.exports= {User, userSchema};

@@ -1,6 +1,35 @@
-const User = require('../models/user.model.js');
+const User = require('../models/user.model.js').User;
+const jwt = require ('jsonwebtoken');
 const bcrypt = require ('bcryptjs');
+const Address = require('../models/address.model.js').Address;
+const Profile = require('../models/profile.model.js').Profile;
+
+const addressController = require('../controllers/address.controller.js');
+const profileController = require('../controllers/profile.controller.js');
 const {registerValidation, loginValidation}= require ('../models/validation.js');
+
+// Find a single User with a userId
+exports.findOne = (req, res) => {
+    User.findById(req.params.userId)
+        .then(user => {
+            if(!user) {
+                return res.status(404).send({
+                    message: "User not found with id " + req.params.userId
+                });
+            }
+            res.send(user);
+        }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "User not found with id " + req.params.userId
+            });
+        }
+        return res.status(500).send({
+            message: "Error retrieving user with id " + req.params.userId
+        });
+    });
+};
+
 
 // Create and Save a new User
 exports.create = async (req, res) => {
@@ -23,32 +52,49 @@ exports.create = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-    // Create a user
-    const user = new User({
-        username : req.body.username,
-        password : hashedPassword,
-        firstName : req.body.firstName,
-        lastName : req.body.lastName,
-        email : req.body.email,
-        role : req.body.role,
-        age : req.body.age,
-        gender : req.body.gender,
-        address: {
-            street: req.body.address.street,
-            city: req.body.address.city,
-            state: req.body.address.state,
-            postal_code: req.body.address.postal_code,
-            country: req.body.address.country
-        }
-    });
+    console.log('before profile');
+    // Create an address
+    // Get the address from the request
+    adr= req.body.profile.address;
+    console.log('address from request',adr);
+    addressController.create(adr.city, adr.postal_code,adr.street,adr.country)
+        .then (address => {
+            console.log("> Created new Address\n", address);
 
-    // Save User in the database
-    try {
-        const savedUser = await user.save();
-        res.send({user: user._id});
-    } catch (err) {
-        res.status(400).send(err);
-    }
+            // Create a profile
+            // Get the profile from the request
+            profile_from_req = req.body.profile;
+            console.log('profile from request', profile_from_req);
+            profileController.create(profile_from_req.gender, profile_from_req.phone_number, profile_from_req.birthDate, address)
+                .then(profile => {
+
+                    console.log("> Created new Profile\n", profile);
+
+                    // Create a user
+                    const user =  User.create({
+                        username : req.body.username,
+                        password : hashedPassword,
+                        firstName : req.body.firstName,
+                        lastName : req.body.lastName,
+                        email : req.body.email,
+                        role : "user",
+                        profile: profile ,
+
+                    });
+
+                    // Save User in the database
+                    try {
+                        const savedUser = user.save();
+                        res.send(savedUser);
+                        console.log('used created : ', savedUser);
+                    } catch (err) {
+                        res.status(400).send(err);
+                    }
+                })
+                .catch(err => console.log(err))
+        })
+        .catch(err => console.log(err));
+
 };
 
 // Retrieve and return all users from the database.
@@ -63,27 +109,6 @@ exports.findAll = (req, res) => {
     });
 };
 
-// Find a single User with a userId
-exports.findOne = (req, res) => {
-    User.findById(req.params.userId)
-    .then(user => {
-        if(!user) {
-            return res.status(404).send({
-                message: "User not found with id " + req.params.userId
-            });
-        }
-        res.send(user);
-    }).catch(err => {
-        if(err.kind === 'ObjectId') {
-            return res.status(404).send({
-                message: "User not found with id " + req.params.userId
-            });
-        }
-        return res.status(500).send({
-            message: "Error retrieving user with id " + req.params.userId
-        });
-    });
-};
 
 // Update a User identified by the userId in the request
 exports.update = (req, res) => {
@@ -96,22 +121,11 @@ exports.update = (req, res) => {
 
     // Find user and update it with the request body
     User.findByIdAndUpdate(req.params.userId, {
-        id: req.body.id,
         username : req.body.username,
-        password : req.body.password,
         firstName : req.body.firstName,
         lastName : req.body.lastName,
         email : req.body.email,
-        role : req.body.role,
-        age : req.body.age,
-        gender : req.body.gender,
-        address: {
-            street: req.body.address.street,
-            city: req.body.address.city,
-            state: req.body.address.state,
-            postal_code: req.body.address.postal_code,
-            country: req.body.address.country
-        }
+        profile: req.user.profile,
     }, {new: true})
     .then(user => {
         if(!user) {
@@ -135,42 +149,40 @@ exports.update = (req, res) => {
 // Delete a User with the specified userId in the request
 exports.delete = (req, res) => {
     User.findByIdAndRemove(req.params.userId)
-    .then(user => {
-        if(!user) {
+        .then(user => {
+            if (!user) {
+                return res.status(404).send({
+                    message: "User not found with id " + req.params.userId
+                });
+            }
+            res.send({message: "User deleted successfully!"});
+        }).catch(err => {
+        if (err.kind === 'ObjectId' || err.name === 'NotFound') {
             return res.status(404).send({
                 message: "User not found with id " + req.params.userId
             });
-        }
-        res.send({message: "User deleted successfully!"});
-    }).catch(err => {
-        if(err.kind === 'ObjectId' || err.name === 'NotFound') {
-            return res.status(404).send({
-                message: "User not found with id " + req.params.userId
-            });                
         }
         return res.status(500).send({
             message: "Could not delete user with id " + req.params.userId
         });
     });
-
+};
 exports.login = async (req, res) =>{
     // Validation of the data before adding a user
     const {error} = loginValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
-console.log('hiiiiiiiiiiiiiiii');
     // Making sure the email exists
     const user = await User.findOne({email: req.body.email});
     if(!user) return res.status(400).send('Email or password is wrong');
-console.log('111111111111111');
     // Password is correct
     const validPass = await bcrypt.compare(req.body.password, user.password);
     if(!validPass) return res.status(400).send('Invalid password');
 
-}
+    // Create and assign a token
+    const token = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET );
+   // res.header('auth-token',token).send(token);
+    res.status(200).json({ user: user, token: token });
 
-exports.logout= async (req,res) => {
-    req.logout();
-    res.redirect('/login');
-
-}
 };
+
+

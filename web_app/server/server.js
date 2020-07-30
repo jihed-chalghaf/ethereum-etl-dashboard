@@ -16,7 +16,6 @@ app.use(bodyParser.json())
 const dbConfig = require('./config/database.config.js');
 const mongoose = require('mongoose');
 
-mongoose.Promise = global.Promise;
 
 // Connecting to the database
 mongoose.connect(dbConfig.url, {
@@ -38,11 +37,10 @@ app.get('/', (req, res) => {
 require('./app/routes/user.routes.js')(app);
 
 
+
 //Middleware
 app.use(express.json());
 
-//Routes Middlewares
-//app.use('/api/user', authRoute);
 
 // listen for requests
 app.listen(3000, () => {
