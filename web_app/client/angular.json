@@ -25,11 +25,17 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/env.js"
+              "src/env.js",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
+                "output": "/assets/"
+              }
             ],
             "styles": [
               "src/styles.scss",
-              "src/assets/scss/argon.scss"
+              "src/assets/scss/argon.scss",
+              "node_modules/ng-zorro-antd/ng-zorro-antd.min.css"
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.min.js",

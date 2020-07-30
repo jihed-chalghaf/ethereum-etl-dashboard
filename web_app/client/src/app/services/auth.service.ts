@@ -22,21 +22,23 @@ export class AuthService {
 
   login(user: User) {
     const credentials = {email: user.email, password: user.password};
+    console.log("credentials => ", JSON.stringify(credentials));
     let headers: HttpHeaders = new HttpHeaders();
     headers.append('Content-Type', 'application/json');
     headers.append('No-Auth', 'True');
     return this.http.post(
       `${this.envService.apiUrl}/login`,
-       JSON.stringify(credentials),
+      // was JSON.stringify(credentials) but mock server doesn't want string, it accepts json object
+       credentials,
        {headers}
-       );
+    );
   }
 
   logout(){
     
     return this.http.post(`${this.envService.apiUrl}/logout`,{}).pipe(
       tap(response=>{
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       })
     );
   }

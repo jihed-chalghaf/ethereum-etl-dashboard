@@ -5,21 +5,11 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
-import { LoginComponent } from './pages/login/login.component';
-import { RegisterComponent } from './pages/register/register.component';
 import { UserProfileComponent } from './pages/profile/user-profile/user-profile.component';
 import { UpdateProfileComponent } from './pages/profile/update-profile/update-profile.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 const routes: Routes =[
-  {
-    path: 'login',
-    component: LoginComponent
-  },
-  {
-    path: 'register',
-    component: RegisterComponent
-  },
   {
     path: 'user-profile',
     component: UserProfileComponent
@@ -54,7 +44,7 @@ const routes: Routes =[
   },
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'auth/login',
     pathMatch: 'full',
   },
   {
