@@ -23,7 +23,7 @@ exports.findOne = (req, res) => {
                     message: "Address not found with id " + req.params.addressId
                 });
             }
-            res.send(address);
+            res.send(address.transform());
         }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({

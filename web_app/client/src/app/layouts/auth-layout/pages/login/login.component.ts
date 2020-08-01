@@ -36,10 +36,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       console.log('##User## => ', this.user);
       this.authService.login(this.user).subscribe(
         (result) => {
+          console.log("RESULT => ", result);
           this.error = false;
           this.userService.saveTokenLocally(result);
           this.userService.saveUserLocally(result);
-          this.router.navigateByUrl('/auth/user-profile');
+          this.router.navigateByUrl('/user-profile');
         },
         (err) => {
           this.error = true;

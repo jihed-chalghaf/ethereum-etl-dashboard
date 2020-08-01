@@ -3,6 +3,8 @@ import { User } from 'src/app/models/user.model';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
+import { Profile } from 'src/app/models/profile.model';
+import { Address } from 'src/app/models/address.model';
 
 @Component({
   selector: 'app-register',
@@ -43,6 +45,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
       this.user.lastName = form.controls.lastName.value;
       this.user.email = form.controls.email.value;
       this.user.password = form.controls.password.value;
+      this.user.profile = new Profile();
+      this.user.profile.address = new Address();
 
       // a little log for testing purposes
       console.log(this.user);

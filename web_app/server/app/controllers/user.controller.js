@@ -17,7 +17,7 @@ exports.findOne = (req, res) => {
                     message: "User not found with id " + req.params.userId
                 });
             }
-            res.send(user);
+            res.send(user.transform());
         }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
@@ -85,8 +85,8 @@ exports.create = async (req, res) => {
                     // Save User in the database
                     try {
                         const savedUser = user.save();
+                        console.log('user created : ', savedUser);
                         res.send(savedUser);
-                        console.log('used created : ', savedUser);
                     } catch (err) {
                         res.status(400).send(err);
                     }
@@ -101,6 +101,9 @@ exports.create = async (req, res) => {
 exports.findAll = (req, res) => {
     User.find()
     .then(users => {
+        for(var user of users) {
+            user = user.transform();
+        }
         res.send(users);
     }).catch(err => {
         res.status(500).send({
@@ -133,7 +136,7 @@ exports.update = (req, res) => {
                 message: "User not found with id " + req.params.userId
             });
         }
-        res.send(user);
+        res.send(user.transform());
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
@@ -179,9 +182,9 @@ exports.login = async (req, res) =>{
     if(!validPass) return res.status(400).send('Invalid password');
 
     // Create and assign a token
-    const token = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET );
+    const token = jwt.sign({id: user._id}, process.env.TOKEN_SECRET );
    // res.header('auth-token',token).send(token);
-    res.status(200).json({ user: user, token: token });
+    res.status(200).json({ user: user.transform(), token: token });
 
 };
 

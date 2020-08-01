@@ -9,7 +9,7 @@ import {DatePipe} from "@angular/common";
 import {ImageService} from "../../../services/image.service";
 import {UserService} from "../../../services/user.service";
 import {CrudService} from "../../../services/crud.service";
-import {API_URL, IMG_URL, USERS_PROFILE} from "../../../globals/global_variables";
+import {API_URL, IMG_URL, USERS} from "../../../globals/global_variables";
 import { Country } from 'src/app/models/enum/Country';
 
 @Component({
@@ -38,7 +38,7 @@ export class UpdateProfileComponent implements OnInit {
 
   ngOnInit(): void {
     // fetch profile from back
-    this.crudService.getOne(API_URL+ USERS_PROFILE, this.userService.getCurrentUser().id).subscribe(
+    this.crudService.getOne(API_URL+ USERS, this.userService.getCurrentUser().id).subscribe(
       (res) =>{
         this.currentUser = JSON.parse(res.user);
         this.currentProfile = this.currentUser.profile;
@@ -125,7 +125,7 @@ export class UpdateProfileComponent implements OnInit {
       }
     };
     // call for update
-    this.crudService.update(API_URL+USERS_PROFILE,this.userService.getCurrentUser().id,jsonUser).subscribe(
+    this.crudService.update(API_URL+USERS,this.userService.getCurrentUser().id,jsonUser).subscribe(
       (result) =>{
         console.log(result.body.user);
         // update current user

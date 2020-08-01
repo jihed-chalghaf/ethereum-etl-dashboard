@@ -22,12 +22,21 @@ export class UserService {
     private localService: LocalService
   ) { }
 
+  corsHeaders = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Access-Control-Allow-Origin': 'http://localhost:3000/'
+  });
+
   getUsers() {
     return this.http.get<User[]>(`${this.envService.apiUrl + USERS}`);
   }
 
   getUserById(id: string) {
-    return this.http.get<User>(`${this.envService.apiUrl + USERS}/${id}`);
+    return this.http.get<User>(`${this.envService.apiUrl + USERS}/${id}`,
+    {
+      headers: this.corsHeaders
+    });
   }
 
   setCurrentUser(currentUser: User) {
@@ -39,6 +48,7 @@ export class UserService {
     const user: User = this.localService.getJsonValue('currentUser');
     if(user != null) {
       this.setCurrentUser(user);
+      console.log("Current User: ", this.currentUser);
     }
     return this.currentUser;
   }
@@ -53,11 +63,11 @@ export class UserService {
 
   saveUserLocally(result) {
     this.currentUser = new User();
-    this.localService.setJsonValue('currentUser',JSON.parse(result.body.user));
-    this.setCurrentUser(JSON.parse(result.body.user));
+    this.localService.setJsonValue('currentUser',result['user']);
+    this.setCurrentUser(result['user']);
   }
 
   saveTokenLocally(result) {
-    this.localService.setJsonValue('token',result.body.token);
+    this.localService.setJsonValue('token',result['token']);
   }
 }

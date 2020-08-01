@@ -26,7 +26,7 @@ exports.findOne = (req, res) => {
                     message: "Profile not found with id " + req.params.profileId
                 });
             }
-            res.send(profile);
+            res.send(profile.transform());
         }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
@@ -61,7 +61,7 @@ exports.update = (req, res) => {
                     message: "Profile not found with id " + req.params.profileId
                 });
             }
-            res.send(profile);
+            res.send(profile.transform());
         }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({

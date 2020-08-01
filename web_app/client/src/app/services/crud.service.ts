@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -7,9 +7,19 @@ import {HttpClient} from '@angular/common/http';
 export class CrudService {
 
   constructor(private http: HttpClient) { }
+
+  corsHeaders = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Access-Control-Allow-Origin': 'http://localhost:3000/'
+  });
+
   getAll(url) {
     console.log(url);
-    return this.http.get<any>(url);
+    return this.http.get<any>(url,
+      {
+        headers: this.corsHeaders
+      });
   }
   getAllWithParams(url, params) {
     console.log(url, params);
@@ -17,7 +27,10 @@ export class CrudService {
   }
   getOne(url, id) {
     console.log(url);
-    return this.http.get<any>(url + '/' + id);
+    return this.http.get<any>(url + '/' + id,
+    {
+      headers: this.corsHeaders
+    });
   }
   post(url, body) {
     console.log(url);
