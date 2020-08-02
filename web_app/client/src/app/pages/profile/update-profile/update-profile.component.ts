@@ -115,11 +115,13 @@ export class UpdateProfileComponent implements OnInit {
         gender: this.profileToCreate.value.gender,
         phoneNumber: this.profileToCreate.value.number,
         birthDate: this.profileToCreate.value.birthday,
+        id: this.currentProfile.id,
         address: {
           street: this.profileToCreate.value.street,
           postal_code: this.profileToCreate.value.postalCode,
           city: this.profileToCreate.value.city,
-          country: this.profileToCreate.value.country
+          country: this.profileToCreate.value.country,
+          id: this.currentAddress.id
         }
       }
     };

@@ -2,14 +2,15 @@
 const Address = require('../models/address.model.js');
 const Profile = require('../models/profile.model.js').Profile;
 const multer = require('multer');
+const { func } = require('@hapi/joi');
 const upload = multer({dest: 'img/'});
 
 
 // Create a profile
-exports.create =  function (gender, phone_number,birthDate,address){
+exports.create =  function (gender, phoneNumber,birthDate,address){
     const profile = new Profile ({
         gender,
-        phone_number,
+        phoneNumber,
         birthDate,
         address
     });
@@ -39,37 +40,47 @@ exports.findOne = (req, res) => {
     });
 };
 
-// Update a Profile identified by the profileId in the request
-exports.update = (req, res) => {
-    // Validate Request
-    if(!req.body.content) {
-        return res.status(400).send({
-            message: "Profile content can not be empty"
-        });
-    }
-
+// Update a Profile
+exports.update = async(profile) => {
+    console.log("Inside Profile update fct");
+    var profl = new Profile();
+    console.log("PROFL## => ", profl);
     // Find profile and update it with the request body
-    Profile.findByIdAndUpdate(req.params.profileId, {
-        gender : req.body.gender,
-        phone_number : req.body.phone_number,
-        birthDate : req.body.birthDate,
-        address: req.body.address,
-    }, {new: true})
-        .then(profile => {
-            if(!profile) {
-                return res.status(404).send({
-                    message: "Profile not found with id " + req.params.profileId
-                });
+    await Profile.findByIdAndUpdate(
+        { _id: profile.id },
+        {
+            gender: profile.gender,
+            phoneNumber: profile.phoneNumber,
+            birthDate: profile.birthDate,
+            address: profile.address
+        },
+        { new: true }
+        ).then(new_profile => {
+            console.log("NEW PROFILE Transformed => ", new_profile.transform());
+            profl = new_profile;
+            console.log("PROFL FINAL## => ", profl);
+        })
+        .catch(err => {
+            if(err.kind === 'ObjectId') {
+                console.log("No profile found with id: ", profile.id);
             }
-            res.send(profile.transform());
-        }).catch(err => {
-        if(err.kind === 'ObjectId') {
-            return res.status(404).send({
-                message: "Profile not found with id " + req.params.profileId
-            });
-        }
-        return res.status(500).send({
-            message: "Error updating profile with id " + req.params.profileId
         });
+    return profl;
+};
+
+// Delete a Profile
+exports.delete = function(profileId) {
+    // delete user finally
+    Profile.findByIdAndRemove(profileId)
+        .then(profile => {
+            if (!profile) {
+                console.log("Profile not found with id ", profileId);
+            }
+            console.log("Profile deleted successfully!");
+        }).catch(err => {
+        if (err.kind === 'ObjectId' || err.name === 'NotFound') {
+           console.log("Profile not found with id ", profileId)
+        }
+        console.log("Could not delete profile with id ", profileId);
     });
 };

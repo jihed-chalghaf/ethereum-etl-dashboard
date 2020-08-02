@@ -65,7 +65,7 @@ exports.create = async (req, res) => {
             // Get the profile from the request
             profile_from_req = req.body.profile;
             console.log('profile from request', profile_from_req);
-            profileController.create(profile_from_req.gender, profile_from_req.phone_number, profile_from_req.birthDate, address)
+            profileController.create(profile_from_req.gender, profile_from_req.phoneNumber, profile_from_req.birthDate, address)
                 .then(profile => {
 
                     console.log("> Created new Profile\n", profile);
@@ -114,7 +114,7 @@ exports.findAll = (req, res) => {
 
 
 // Update a User identified by the userId in the request
-exports.update = (req, res) => {
+exports.update = async(req, res) => {
     // Validate Request
     if(!req.body) {
         return res.status(400).send({
@@ -122,35 +122,108 @@ exports.update = (req, res) => {
         });
     }
 
-    // Find user and update it with the request body
-    User.findByIdAndUpdate(req.params.userId, {
-        username : req.body.username,
-        firstName : req.body.firstName,
-        lastName : req.body.lastName,
-        email : req.body.email,
-        profile: req.body.profile,
-    }, {new: true})
+    new_profile = req.body.profile;
+    console.log("new_profile inside user controller => ", new_profile);
+    // Updating user's address
+    addressController.update(new_profile.address)
+        .then(address => {
+            if(address == false) {
+                console.log("address is false");
+                return res.status(404).send({
+                    message: "failed to update the user's address"
+                });
+            }
+            new_profile.address = address;
+            console.log("Address Updated => ", address);
+            // updated user's address successfully
+            // Updating User's profile
+            profileController.update(new_profile)
+                .then(profile => {
+                    if(profile == false) {
+                        console.log("profile is false");
+                        return res.status(404).send({
+                            message: "failed to update the user's profile"
+                        });
+                    }
+                    console.log("Profile Updated => ", profile);
+                    // updated profile and address successfully
+                    // updating user object in db finally
+                    User.findByIdAndUpdate(
+                        { _id: req.params.userId },
+                        {
+                            username: req.body.username,
+                            firstName: req.body.firstName,
+                            lastName: req.body.lastName,
+                            email: req.body.email,
+                            profile: profile,
+                        },
+                        { new: true }
+                        ).then(user => {
+                        if(!user) {
+                            return res.status(404).send({
+                                message: "User not found with id " + req.params.userId
+                            });
+                        }
+                        res.send(user.transform());
+                    }).catch(err => {
+                        if(err.kind === 'ObjectId') {
+                            return res.status(404).send({
+                                message: "User not found with id " + req.params.userId
+                            });                
+                        }
+                        return res.status(500).send({
+                            message: "Error updating user with id " + req.params.userId
+                        });
+                    });
+                }
+            ).catch(err => {
+                if(err.kind === 'ObjectId') {
+                    return res.status(404).send({
+                        message: "Profile not found with id " + new_profile.id
+                    });                
+                }
+                return res.status(500).send({
+                    message: "Error updating profile with id " + new_profile.id
+                });
+            });
+        }
+    ).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "Address not found with id " + new_profile.address.id
+            });                
+        }
+        return res.status(500).send({
+            message: "Error updating address with id " + new_profile.address.id
+        });
+    });
+};
+
+
+// Delete a User with the specified userId in the request
+exports.delete = async(req, res) => {
+    // get full user to get his profile.id and address.id
+    User.findById(req.params.userId)
     .then(user => {
         if(!user) {
             return res.status(404).send({
                 message: "User not found with id " + req.params.userId
             });
         }
-        res.send(user.transform());
+        var formatted_user = user.transform();
+        // delete address
+        addressController.delete(formatted_user.profile.address.id);
+        // delete profile
+        profileController.delete(formatted_user.profile.id);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({
                 message: "User not found with id " + req.params.userId
-            });                
+            });
         }
-        return res.status(500).send({
-            message: "Error updating user with id " + req.params.userId
-        });
     });
-};
-
-// Delete a User with the specified userId in the request
-exports.delete = (req, res) => {
+    // address and profile were deleted successfully
+    // delete user finally
     User.findByIdAndRemove(req.params.userId)
         .then(user => {
             if (!user) {
@@ -170,7 +243,9 @@ exports.delete = (req, res) => {
         });
     });
 };
-exports.login = async (req, res) =>{
+
+// login a user using his credentials (email, password)
+exports.login = async (req, res) => {
     // Validation of the data before adding a user
     const {error} = loginValidation(req.body);
     if(error) return res.status(400).send(error.details[0].message);
@@ -185,7 +260,6 @@ exports.login = async (req, res) =>{
     const token = jwt.sign({id: user._id}, process.env.TOKEN_SECRET );
    // res.header('auth-token',token).send(token);
     res.status(200).json({ user: user.transform(), token: token });
-
 };
 
 

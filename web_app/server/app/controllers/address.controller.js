@@ -35,3 +35,52 @@ exports.findOne = (req, res) => {
         });
     });
 };
+
+// Update an address
+exports.update = async(address) => {
+    console.log("Inside Address update fct");
+    var adr = new Address();
+    console.log("ADR## => ", adr);
+    // Find address and update it with the request body
+    await Address.findByIdAndUpdate(
+        { _id: address.id },
+        { 
+            street: address.street,
+            postal_code: address.postal_code,
+            city: address.city,
+            country: address.country
+        }, 
+        { new: true }
+        ).then(new_address => {
+            if(!new_address) {
+                console.log("No address found with id: ", address.id);
+                return false;
+            }
+            console.log("NEW ADDRESS Transformed => ", new_address.transform());
+            adr = new_address;
+            console.log("ADR FINAL## => ", adr);
+        }).catch(err => {
+            if(err.kind === 'ObjectId') {
+                console.log("No address found with id: ", address.id);
+                return false;
+            }
+        });
+    return adr;
+};
+
+// Delete an address
+exports.delete = function(addressId) {
+    // delete user finally
+    Address.findByIdAndRemove(addressId)
+        .then(address => {
+            if (!address) {
+                console.log( "address not found with id ", addressId);
+            }
+            console.log("address deleted successfully!");
+        }).catch(err => {
+        if (err.kind === 'ObjectId' || err.name === 'NotFound') {
+            console.log("address not found with id ", addressId);
+        }
+        console.log("Could not delete address with id ", addressId);
+    });
+};

@@ -3,7 +3,7 @@ const addressSchema = require('../models/address.model.js').addressSchema;
 
 const profileSchema = mongoose.Schema({
     gender : String,
-    phone_number : Number,
+    phoneNumber : Number,
     birthDate : String,
     address: addressSchema,
     userImage: String
