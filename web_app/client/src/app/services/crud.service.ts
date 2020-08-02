@@ -16,10 +16,7 @@ export class CrudService {
 
   getAll(url) {
     console.log(url);
-    return this.http.get<any>(url,
-      {
-        headers: this.corsHeaders
-      });
+    return this.http.get<any>(url);
   }
   getAllWithParams(url, params) {
     console.log(url, params);
@@ -27,10 +24,7 @@ export class CrudService {
   }
   getOne(url, id) {
     console.log(url);
-    return this.http.get<any>(url + '/' + id,
-    {
-      headers: this.corsHeaders
-    });
+    return this.http.get<any>(url + '/' + id);
   }
   post(url, body) {
     console.log(url);
@@ -42,7 +36,7 @@ export class CrudService {
   }
   update(url, id, body) {
     console.log(url);
-    return this.http.put<any>(url + '/' + id, body,{observe: 'response' });
+    return this.http.patch<any>(url + '/' + id, body,{observe: 'response' });
   }
   delete(url, id) {
     console.log(url);

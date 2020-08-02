@@ -33,10 +33,7 @@ export class UserService {
   }
 
   getUserById(id: string) {
-    return this.http.get<User>(`${this.envService.apiUrl + USERS}/${id}`,
-    {
-      headers: this.corsHeaders
-    });
+    return this.http.get<User>(`${this.envService.apiUrl + USERS}/${id}`);
   }
 
   setCurrentUser(currentUser: User) {

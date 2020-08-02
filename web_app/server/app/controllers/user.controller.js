@@ -37,7 +37,7 @@ exports.create = async (req, res) => {
     // Validate request
     if(!req.body) {
         return res.status(400).send({
-            message: "User content can not be empty"
+            message: "request body can't be empty"
         });
     }
     // Validation of the data before adding a user
@@ -55,7 +55,7 @@ exports.create = async (req, res) => {
     console.log('before profile');
     // Create an address
     // Get the address from the request
-    adr= req.body.profile.address;
+    adr = req.body.profile.address;
     console.log('address from request',adr);
     addressController.create(adr.city, adr.postal_code,adr.street,adr.country)
         .then (address => {
@@ -116,9 +116,9 @@ exports.findAll = (req, res) => {
 // Update a User identified by the userId in the request
 exports.update = (req, res) => {
     // Validate Request
-    if(!req.body.content) {
+    if(!req.body) {
         return res.status(400).send({
-            message: "User content can not be empty"
+            message: "request body can't be empty"
         });
     }
 
@@ -128,7 +128,7 @@ exports.update = (req, res) => {
         firstName : req.body.firstName,
         lastName : req.body.lastName,
         email : req.body.email,
-        profile: req.user.profile,
+        profile: req.body.profile,
     }, {new: true})
     .then(user => {
         if(!user) {

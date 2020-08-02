@@ -30,17 +30,18 @@ export class UpdateProfileComponent implements OnInit {
   currentAddress: Address = new Address();
   public image = null;
   pipe = new DatePipe('en-US');
-  constructor(private formBuilder: FormBuilder,
-              private imageService: ImageService,
-              private userService: UserService,
-              private crudService: CrudService,
-              private router: Router) { }
+  constructor(
+    private formBuilder: FormBuilder,
+    private imageService: ImageService,
+    private userService: UserService,
+    private crudService: CrudService,
+    private router: Router) { }
 
   ngOnInit(): void {
     // fetch profile from back
     this.crudService.getOne(API_URL+ USERS, this.userService.getCurrentUser().id).subscribe(
       (res) =>{
-        this.currentUser = JSON.parse(res.user);
+        this.currentUser = res;
         this.currentProfile = this.currentUser.profile;
         if (this.currentProfile){
           this.currentAddress = this.currentProfile.address;
@@ -106,21 +107,19 @@ export class UpdateProfileComponent implements OnInit {
       this.profileToCreate.value.birthday = this.pipe.transform(this.profileToCreate.value.birthday, ' yyyy-M-d hh:mm:ss');
     }
     const jsonUser = {
-      user : {
-        username: this.profileToCreate.value.username,
-        email: this.profileToCreate.value.email,
-        firstName: this.profileToCreate.value.firstName,
-        lastName: this.profileToCreate.value.lastName,
-        profile: {
-          gender: this.profileToCreate.value.gender,
-          phoneNumber: this.profileToCreate.value.number,
-          birthDate: this.profileToCreate.value.birthday,
-          address: {
-            street: this.profileToCreate.value.street,
-            postal_code: this.profileToCreate.value.postalCode,
-            city: this.profileToCreate.value.city,
-            country: this.profileToCreate.value.country
-          }
+      username: this.profileToCreate.value.username,
+      email: this.profileToCreate.value.email,
+      firstName: this.profileToCreate.value.firstName,
+      lastName: this.profileToCreate.value.lastName,
+      profile: {
+        gender: this.profileToCreate.value.gender,
+        phoneNumber: this.profileToCreate.value.number,
+        birthDate: this.profileToCreate.value.birthday,
+        address: {
+          street: this.profileToCreate.value.street,
+          postal_code: this.profileToCreate.value.postalCode,
+          city: this.profileToCreate.value.city,
+          country: this.profileToCreate.value.country
         }
       }
     };
