@@ -8,19 +8,25 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
 import { UserProfileComponent } from './pages/profile/user-profile/user-profile.component';
 import { UpdateProfileComponent } from './pages/profile/update-profile/update-profile.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { AuthGuard } from './guards/auth.guard';
+import { Role } from './models/enum/Role';
 
 const routes: Routes =[
   {
     path: 'user-profile',
-    component: UserProfileComponent
+    component: UserProfileComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'update-profile',
-    component: UpdateProfileComponent
+    component: UpdateProfileComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'admin',
     component: AdminLayoutComponent,
+    canActivate: [AuthGuard],
+    data: {roles: [Role.Admin]},
     children: [
       {
         path: '',

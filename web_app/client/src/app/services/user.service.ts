@@ -60,11 +60,11 @@ export class UserService {
 
   saveUserLocally(result) {
     this.currentUser = new User();
-    this.localService.setJsonValue('currentUser',result['user']);
-    this.setCurrentUser(result['user']);
+    this.localService.setJsonValue('currentUser',result.body.user);
+    this.setCurrentUser(result.body.user);
   }
 
   saveTokenLocally(result) {
-    this.localService.setJsonValue('token',result['token']);
+    this.localService.setJsonValue('token',result.body.token);
   }
 }

@@ -128,7 +128,7 @@ export class UpdateProfileComponent implements OnInit {
     // call for update
     this.crudService.update(API_URL+USERS,this.userService.getCurrentUser().id,jsonUser).subscribe(
       (result) =>{
-        console.log(result.body.user);
+        console.log(result);
         // update current user
         this.userService.saveUserLocally(result);
       }

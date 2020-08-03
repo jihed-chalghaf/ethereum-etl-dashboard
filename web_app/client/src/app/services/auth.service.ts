@@ -35,13 +35,14 @@ export class AuthService {
     return this.http.post(
       `${this.envService.apiUrl}/login`,
       // was JSON.stringify(credentials) but mock server doesn't want string, it accepts json object
-       credentials
+       credentials,
+       {observe: 'response'}
     );
   }
 
   logout(){
     
-    return this.http.post(`${this.envService.apiUrl}/logout`,{})
+    return this.http.post(`${this.envService.apiUrl}/logout`,{observe: 'response'})
     .pipe(
       tap(response=>{
         this.router.navigate(['/auth/login']);
@@ -53,7 +54,7 @@ export class AuthService {
     //let headers: HttpHeaders = new HttpHeaders();
     //headers.append("No-Auth", "True");
     this.corsHeaders.append('No-Auth', 'True');
-    return this.http.post<User>(`${this.envService.apiUrl + USERS}`, user);
+    return this.http.post<User>(`${this.envService.apiUrl + USERS}`, user, {observe: 'response'});
   }
 
   isLogged() {

@@ -52,10 +52,10 @@ export class RegisterComponent implements OnInit, OnDestroy {
       console.log(this.user);
 
       this.authService.signup(this.user).subscribe(
-        (user) => {
+        (result) => {
           this.error = false;
           this.success = true;
-          console.log("##created_user## => ", user);
+          console.log("##created_user## => ", result);
           this.router.navigateByUrl('/auth/login');
         },
         (error) => {

@@ -71,7 +71,7 @@ exports.create = async (req, res) => {
                     console.log("> Created new Profile\n", profile);
 
                     // Create a user
-                    const user =  User.create({
+                    const user =  new User({
                         username : req.body.username,
                         password : hashedPassword,
                         firstName : req.body.firstName,
@@ -79,14 +79,17 @@ exports.create = async (req, res) => {
                         email : req.body.email,
                         role : "user",
                         profile: profile ,
-
                     });
+
 
                     // Save User in the database
                     try {
-                        const savedUser = user.save();
-                        console.log('user created : ', savedUser);
-                        res.send(savedUser);
+                        user.save()
+                        .then(newUser => {
+                            console.log('user created : ', newUser);
+                            res.send(newUser);
+                        })
+                        .catch(err => console.log(err));
                     } catch (err) {
                         res.status(400).send(err);
                     }
@@ -164,7 +167,7 @@ exports.update = async(req, res) => {
                                 message: "User not found with id " + req.params.userId
                             });
                         }
-                        res.send(user.transform());
+                        res.json({user: user.transform()});
                     }).catch(err => {
                         if(err.kind === 'ObjectId') {
                             return res.status(404).send({
@@ -231,6 +234,7 @@ exports.delete = async(req, res) => {
                     message: "User not found with id " + req.params.userId
                 });
             }
+            console.log("User deleted successfully!");
             res.send({message: "User deleted successfully!"});
         }).catch(err => {
         if (err.kind === 'ObjectId' || err.name === 'NotFound') {
