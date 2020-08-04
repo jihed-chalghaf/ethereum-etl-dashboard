@@ -1,12 +1,11 @@
 const User = require('../models/user.model.js').User;
-const jwt = require ('jsonwebtoken');
 const bcrypt = require ('bcryptjs');
 const Address = require('../models/address.model.js').Address;
 const Profile = require('../models/profile.model.js').Profile;
 
 const addressController = require('../controllers/address.controller.js');
 const profileController = require('../controllers/profile.controller.js');
-const {registerValidation, loginValidation}= require ('../models/validation.js');
+const {registerValidation}= require ('../models/validation.js');
 
 // Find a single User with a userId
 exports.findOne = (req, res) => {
@@ -247,23 +246,3 @@ exports.delete = async(req, res) => {
         });
     });
 };
-
-// login a user using his credentials (email, password)
-exports.login = async (req, res) => {
-    // Validation of the data before adding a user
-    const {error} = loginValidation(req.body);
-    if(error) return res.status(400).send(error.details[0].message);
-    // Making sure the email exists
-    const user = await User.findOne({email: req.body.email});
-    if(!user) return res.status(400).send('Email or password is wrong');
-    // Password is correct
-    const validPass = await bcrypt.compare(req.body.password, user.password);
-    if(!validPass) return res.status(400).send('Invalid password');
-
-    // Create and assign a token
-    const token = jwt.sign({id: user._id}, process.env.TOKEN_SECRET );
-   // res.header('auth-token',token).send(token);
-    res.status(200).json({ user: user.transform(), token: token });
-};
-
-
