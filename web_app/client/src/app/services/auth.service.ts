@@ -41,13 +41,7 @@ export class AuthService {
   }
 
   logout(){
-    
-    return this.http.post(`${this.envService.apiUrl}/logout`,{observe: 'response'})
-    .pipe(
-      tap(response=>{
-        this.router.navigate(['/auth/login']);
-      })
-    );
+    return this.http.post(`${this.envService.apiUrl}/logout`,{observe: 'response'});
   }
 
   signup(user: User) {

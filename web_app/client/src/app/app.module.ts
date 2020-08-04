@@ -14,10 +14,8 @@ import { AppRoutingModule } from './app.routing';
 import { ComponentsModule } from './components/components.module';
 import { EnvServiceProvider } from './services/env.service.provider';
 import { AuthInterceptorProvider } from './interceptors/auth.interceptor';
-import { UserProfileComponent } from './pages/profile/user-profile/user-profile.component';
-import { UpdateProfileComponent } from './pages/profile/update-profile/update-profile.component';
-import { EnumToArrayPipe } from './pipes/enum-to-array.pipe';
 import { NgZorroAntdModule, en_US, NZ_I18N } from 'ng-zorro-antd';
+import { UserLayoutComponent } from './layouts/user-layout/user-layout.component';
 
 
 @NgModule({
@@ -36,9 +34,7 @@ import { NgZorroAntdModule, en_US, NZ_I18N } from 'ng-zorro-antd';
     AppComponent,
     AdminLayoutComponent,
     AuthLayoutComponent,
-    UserProfileComponent,
-    UpdateProfileComponent,
-    EnumToArrayPipe
+    UserLayoutComponent
   ],
   providers: [
     AuthInterceptorProvider,

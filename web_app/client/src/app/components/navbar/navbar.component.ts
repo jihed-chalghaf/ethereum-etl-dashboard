@@ -48,7 +48,7 @@ export class NavbarComponent implements OnInit, DoCheck {
       },
       error => {
         console.log(error);
-        this.image = 'assets/img/theme/team-4-800x800.jpg';
+        this.image = 'assets/img/theme/default_profile_pic.jpeg';
       }
     );
   }
@@ -80,7 +80,7 @@ export class NavbarComponent implements OnInit, DoCheck {
         this.isLogged = false;
         this.image = null;
         this.currentUser = null;
-        this.router.navigate(['/']);
+        this.router.navigate(['/auth/login']);
       }
     );
   }
