@@ -23,6 +23,15 @@ module.exports = (app) => {
         ]
     }));
 
+    // integrate the jwt authentication function
+    router.use(authenticateJWT.unless({
+        path: [
+            '/api/login',
+            { url: '/api/users', methods: ['POST'] }, // registration, no need for auth
+            { url: '/api/', methods: ['GET', 'PUT'] } // main uri called from front, to avoid errors
+        ]
+    }));
+
     // Create a new Address
     router.post('/addresses', function(req,res){
         addresses.create(req,res)

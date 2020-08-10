@@ -52,7 +52,7 @@ exports.update = async(profile) => {
             gender: profile.gender,
             phoneNumber: profile.phoneNumber,
             birthDate: profile.birthDate,
-            address: profile.address
+            address: profile.address,
         },
         { new: true }
         ).then(new_profile => {
