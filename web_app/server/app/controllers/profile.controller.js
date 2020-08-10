@@ -1,4 +1,3 @@
-
 const Address = require('../models/address.model.js');
 const Profile = require('../models/profile.model.js').Profile;
 const multer = require('multer');
@@ -42,7 +41,7 @@ exports.findOne = (req, res) => {
 
 // Update a Profile
 exports.update = async(profile) => {
- //   upload.single('userImage'),
+     //   upload.single('userImage'),
     console.log("Inside Profile update fct");
     var profl = new Profile();
     console.log("PROFL## => ", profl);

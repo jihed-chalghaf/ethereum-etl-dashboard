@@ -7,7 +7,7 @@ import {
   parseOptions,
   chartExample1,
   chartExample2
-} from "../../variables/charts";
+} from "../../../../variables/charts";
 
 @Component({
   selector: 'app-dashboard',

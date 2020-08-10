@@ -9,10 +9,19 @@ module.exports = (app) => {
 
     // assign auth fct to a local one in order to configre 'unless' property correctly
     const authenticateJWT = auth.authenticateJWT;
-    authenticateJWT.unless = unless;
+    authenticateJWT.unless = unless; 
 
     // define our router object
     var router = require("express").Router();
+    
+    // integrate the jwt authentication function
+    router.use(authenticateJWT.unless({
+        path: [
+            '/api/login',
+            { url: '/api/users', methods: ['POST'] }, // registration, no need for auth
+            { url: '/api/', methods: ['GET', 'PUT'] } // main uri called from front, to avoid errors
+        ]
+    }));
 
     // integrate the jwt authentication function
     router.use(authenticateJWT.unless({
