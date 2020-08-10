@@ -5,14 +5,12 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
-import { UserProfileComponent } from './pages/profile/user-profile/user-profile.component';
-import { UpdateProfileComponent } from './pages/profile/update-profile/update-profile.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 import { Role } from './models/enum/Role';
+import { UserLayoutComponent } from './layouts/user-layout/user-layout.component';
 
 const routes: Routes =[
-  {
+  /*{
     path: 'user-profile',
     component: UserProfileComponent,
     canActivate: [AuthGuard]
@@ -21,7 +19,7 @@ const routes: Routes =[
     path: 'update-profile',
     component: UpdateProfileComponent,
     canActivate: [AuthGuard]
-  },
+  },*/
   {
     path: 'admin',
     component: AdminLayoutComponent,
@@ -45,13 +43,16 @@ const routes: Routes =[
     ]
   },
   {
-    path: 'dashboard',
-    component: DashboardComponent
-  },
-  {
     path: '',
-    redirectTo: 'auth/login',
-    pathMatch: 'full',
+    component: UserLayoutComponent,
+    canActivate: [AuthGuard],
+    data: {roles: [Role.User]},
+    children: [
+      {
+        path: '',
+        loadChildren: './layouts/user-layout/user-layout.module#UserLayoutModule'
+      }
+    ]
   },
   {
     path: '**',
