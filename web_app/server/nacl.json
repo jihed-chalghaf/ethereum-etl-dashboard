@@ -1,0 +1,97 @@
+[
+  {
+    "group": "ADMIN",
+    "permissions": [
+      {
+        "resource": "users",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "users",
+        "methods": ["POST"],
+        "action": "deny"
+      },
+      {
+        "resource": "users/:userId",
+        "methods": ["GET", "DELETE"],
+        "action": "allow"
+      },
+      {
+        "resource": "users/:userId",
+        "methods": ["PATCH"],
+        "action": "deny"
+      },
+      {
+        "resource": "profiles/:profileId",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "addresses/:addressId",
+        "methods": ["GET"],
+        "action": "allow"
+      }
+    ]
+  },
+  {
+    "group": "USER",
+    "permissions": [
+      {
+        "resource": "users",
+        "methods": ["GET", "POST"],
+        "action": "deny"
+      },
+      {
+        "resource": "users/:userId",
+        "methods": ["GET", "PATCH"],
+        "action": "allow"
+      },
+      {
+        "resource": "users/:userId",
+        "methods": ["DELETE"],
+        "action": "deny"
+      },
+      {
+        "resource": "profiles/:profileId",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "addresses/:addressId",
+        "methods": ["GET"],
+        "action": "allow"
+      }
+    ]
+  },
+  {
+    "group": "anonymous",
+    "permissions": [
+      {
+        "resource": "users",
+        "methods": ["GET"],
+        "action": "deny"
+      },
+      {
+        "resource": "users",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
+        "resource": "users/:userId",
+        "methods": ["GET", "PATCH", "DELETE"],
+        "action": "deny"
+      },
+      {
+        "resource": "profiles/:profileId",
+        "methods": ["GET"],
+        "action": "deny"
+      },
+      {
+        "resource": "addresses/:addressId",
+        "methods": ["GET"],
+        "action": "deny"
+      }
+    ]
+  }
+]

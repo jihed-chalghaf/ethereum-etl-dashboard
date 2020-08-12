@@ -4,6 +4,9 @@ module.exports = (app) => {
     const profiles = require('../controllers/profile.controller.js');
     const auth = require('../controllers/auth.controller');
 
+    // express-acl
+    const acl = require('express-acl');
+
     // unless
     var unless = require('express-unless');
 
@@ -23,24 +26,33 @@ module.exports = (app) => {
         ]
     }));
 
-    // integrate the jwt authentication function
-    router.use(authenticateJWT.unless({
-        path: [
+    // configure the acl
+    let aclConfigObject = {
+        baseUrl: 'api',
+        // will search for the role in req.user.role
+        roleSearchPath: 'user.role',
+        defaultRole: 'anonymous',
+        denyCallback: (res) => {
+            return res.status(403).json({
+                status: 'Access Denied',
+                success: false,
+                message: 'You are not authorized to access this resource'
+            });
+        }
+    };
+  
+    acl.config(aclConfigObject);
+
+    //integrate express-acl for authorization, we're skipping auth routes
+    router.use(acl.authorize.unless(
+        {
+          path: [
             '/api/login',
-            { url: '/api/users', methods: ['POST'] }, // registration, no need for auth
-            { url: '/api/', methods: ['GET', 'PUT'] } // main uri called from front, to avoid errors
-        ]
-    }));
-
-    // Create a new Address
-    router.post('/addresses', function(req,res){
-        addresses.create(req,res)
-    });
-
-    // Create a new Profile
-    router.post('/profiles', function(req,res){
-        profiles.create(req,res)
-    });
+            '/api/logout',
+            { url: '/api/users', methods: ['POST'] } // at the end we'll remove this line}
+          ]
+        }
+    ));
 
     // Create a new User
     router.post('/users', users.create);
@@ -68,9 +80,6 @@ module.exports = (app) => {
 
     // Retrieve a single Address with profileId
     router.get('/addresses/:addressId', addresses.findOne);
-
-    // Update a Profile with profileId
-    router.patch('/profiles/:profileId', profiles.update);
 
     app.use('/api', router);
 

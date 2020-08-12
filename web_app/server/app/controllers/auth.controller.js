@@ -82,7 +82,7 @@ exports.login = async (req, res) => {
 
     // Create and assign a token that expires after 40 mins
     const token = jwt.sign(
-        {id: user._id},
+        {id: user._id, role: user.role},
         accessTokenSecret,
         { expiresIn: '40m' } 
     );
