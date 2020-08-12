@@ -1,4 +1,3 @@
-
 const Address = require('../models/address.model.js');
 const Profile = require('../models/profile.model.js').Profile;
 const multer = require('multer');
@@ -42,6 +41,7 @@ exports.findOne = (req, res) => {
 
 // Update a Profile
 exports.update = async(profile) => {
+     //   upload.single('userImage'),
     console.log("Inside Profile update fct");
     var profl = new Profile();
     console.log("PROFL## => ", profl);
@@ -52,7 +52,7 @@ exports.update = async(profile) => {
             gender: profile.gender,
             phoneNumber: profile.phoneNumber,
             birthDate: profile.birthDate,
-            address: profile.address
+            address: profile.address,
         },
         { new: true }
         ).then(new_profile => {
@@ -84,3 +84,36 @@ exports.delete = function(profileId) {
         console.log("Could not delete profile with id ", profileId);
     });
 };
+
+/*
+exports.updateProfile = (req, res) => {
+    upload.single('userImage'),
+
+    // Find note and update it with the request body
+    Profile.findByIdAndUpdate(req.params.profileId, {
+        gender: req.body.gender,
+        phoneNumber: req.body.phoneNumber,
+        birthDate: req.body.birthDate,
+        address: req.body.address,
+    }, {new: true})
+        .then(profile => {
+            console.log('SUCCESS')
+            if(!profile) {
+                return res.status(404).send({
+                    message: "Note not found with id " + req.params.profileId
+                });
+            }
+            res.send(Profile);
+        }).catch(err => {
+        if(err.kind === 'ObjectId') {
+            return res.status(404).send({
+                message: "Note not found with id " + req.params.profileId
+            });
+        }
+        return res.status(500).send({
+            message: "Error updating note with id " + req.params.profileId
+        });
+    });
+};
+
+ */
