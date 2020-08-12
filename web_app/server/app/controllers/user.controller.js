@@ -77,6 +77,7 @@ exports.create = async (req, res) => {
                         lastName : req.body.lastName,
                         email : req.body.email,
                         role : "USER",
+                        deleted: false,
                         profile: profile ,
                     });
 
@@ -245,4 +246,78 @@ exports.delete = async(req, res) => {
             message: "Could not delete user with id " + req.params.userId
         });
     });
+};
+
+// Create and Save a new User
+exports.createAdmin = async (admin) => {
+    empty_address = new Address();
+    empty_profile = new Profile();
+    empty_profile.address = empty_address;
+    admin.profile = empty_profile;
+    // Validation of the data before adding a user
+    const {error} = registerValidation(admin);
+    if(error) {
+        console.log("Admin creation validation is erronous", error);
+        return false;
+    }
+
+    // Checking if the user is already in the database
+    const emailExist = await User.findOne({email: admin.email});
+    if(emailExist) { 
+        console.log('Email already exists');
+        return false;
+    }
+
+    // Hash passwords
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(admin.password, salt);
+
+    console.log('before profile');
+    // Create an address
+    // Get the address from the request
+    adr = admin.profile.address;
+    console.log('address from request',adr);
+    addressController.create(adr.city, adr.postal_code,adr.street,adr.country)
+        .then (address => {
+            console.log("> Created new Address\n", address);
+
+            // Create a profile
+            // Get the profile from the request
+            profl = admin.profile;
+            console.log('profile from request', profl);
+            profileController.create(profl.gender, profl.phoneNumber, profl.birthDate, address)
+                .then(profile => {
+
+                    console.log("> Created new Profile\n", profile);
+
+                    // Create a user
+                    const new_admin =  new User({
+                        username : admin.username,
+                        password : hashedPassword,
+                        firstName : admin.firstName,
+                        lastName : admin.lastName,
+                        email : admin.email,
+                        role: "ADMIN",
+                        deleted: false,
+                        profile: profile,
+                    });
+
+
+                    // Save Admin in the database
+                    try {
+                        new_admin.save()
+                        .then(newAdmin => {
+                            console.log('admin created : ', newAdmin);
+                            return true;
+                        })
+                        .catch(err => console.log(err));
+                    } catch (err) {
+                        console.log(err);
+                        return false;
+                    }
+                })
+                .catch(err => console.log(err))
+        })
+        .catch(err => console.log(err));
+
 };

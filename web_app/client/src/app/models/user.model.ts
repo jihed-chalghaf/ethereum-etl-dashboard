@@ -9,4 +9,5 @@ export class User{
     password: string;
     profile: Profile;
     role: string;
+    deleted: false;
 }

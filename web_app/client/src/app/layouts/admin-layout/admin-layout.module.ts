@@ -11,6 +11,8 @@ import { IconsComponent } from '../../pages/icons/icons.component';
 import { MapsComponent } from '../../pages/maps/maps.component';
 import { TablesComponent } from '../../pages/tables/tables.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { UsersComponent } from './pages/users/users.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 // import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
@@ -20,13 +22,15 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     FormsModule,
     HttpClientModule,
     NgbModule,
-    ClipboardModule
+    ClipboardModule,
+    MatSnackBarModule
   ],
   declarations: [
     DashboardComponent,
     TablesComponent,
     IconsComponent,
-    MapsComponent
+    MapsComponent,
+    UsersComponent
   ]
 })
 

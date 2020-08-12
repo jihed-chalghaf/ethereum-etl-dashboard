@@ -23,7 +23,7 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true
    },
-
+ deleted: Boolean,
  role : String,
  profile:profileSchema
  },

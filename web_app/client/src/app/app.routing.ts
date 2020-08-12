@@ -10,16 +10,6 @@ import { Role } from './models/enum/Role';
 import { UserLayoutComponent } from './layouts/user-layout/user-layout.component';
 
 const routes: Routes =[
-  /*{
-    path: 'user-profile',
-    component: UserProfileComponent,
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'update-profile',
-    component: UpdateProfileComponent,
-    canActivate: [AuthGuard]
-  },*/
   {
     path: 'admin',
     component: AdminLayoutComponent,
@@ -46,7 +36,7 @@ const routes: Routes =[
     path: '',
     component: UserLayoutComponent,
     canActivate: [AuthGuard],
-    data: {roles: [Role.User]},
+    data: {roles: [Role.User, Role.Admin]},
     children: [
       {
         path: '',

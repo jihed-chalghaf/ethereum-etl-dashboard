@@ -40,7 +40,14 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.error = false;
           this.userService.saveTokenLocally(result);
           this.userService.saveUserLocally(result);
-          this.router.navigateByUrl('/user-profile');
+          if(this.userService.getCurrentUser().role.toUpperCase() === 'USER')
+          {
+            this.router.navigateByUrl('/user-profile');
+          }
+          else if(this.userService.getCurrentUser().role.toUpperCase() === 'ADMIN')
+          {
+            this.router.navigateByUrl('/admin/users');
+          }
         },
         (err) => {
           this.error = true;
