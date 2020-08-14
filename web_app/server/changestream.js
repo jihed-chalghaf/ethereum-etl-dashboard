@@ -1,5 +1,6 @@
 const MongoClient = require("mongodb").MongoClient;
 const assert = require("assert");
+const dbConfig = require('./config/database.config.js');
 /*
 Modify Change Stream Output using Aggregation Pipelines
 You can control change stream output by providing an array of one or more of the following pipeline stages when configuring the change stream:
@@ -11,7 +12,7 @@ const pipeline = [
     $project: { documentKey: false }  }
 ];
 
-const connectionString = 'mongodb://localhost:27011,localhost:27012,localhost:27013?replicaSet=rs';
+const connectionString = dbConfig.url_rs;
 
 MongoClient.connect(
     connectionString,
@@ -21,10 +22,10 @@ MongoClient.connect(
     }
 )
 .then(client => {
-    console.log("Connected correctly to server");
+    console.log("Connected correctly to the replica set");
     // specify db and collections
     const db = client.db("EventsDB");
-    const collection = db.collection("events");
+    const collection = db.collection("Events");
 
     const changeStream = collection.watch(pipeline);    // start listen to changes
     changeStream.on("change", function(change) {

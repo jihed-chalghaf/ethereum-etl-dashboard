@@ -23,7 +23,7 @@ const dbConfig = require('./config/database.config.js');
 const mongoose = require('mongoose');
 
 
-// Connecting to the database
+// Connecting to the users database
 mongoose.connect(dbConfig.url, {
     useUnifiedTopology: true,
     useNewUrlParser: true
@@ -34,6 +34,9 @@ mongoose.connect(dbConfig.url, {
     console.log('Could not connect to the database. Exiting now...', err);
     process.exit();
 });
+
+// Connecting to the Replica Set
+require('./changestream.js');
 
 // define a simple route
 app.get('/', (req, res) => {
