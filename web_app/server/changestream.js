@@ -14,6 +14,50 @@ const pipeline = [
 
 const connectionString = dbConfig.url_rs;
 
+// fake events for testing
+// @address: Contract's address
+// @topics: Event's Id : not a unique identifier, for every event created in the contract,
+// we have an id for that exact event, let's say for the event sendMoney() topics is 4
+//@id: the unique id for each event launched from the contract (event instance let's say)
+var events = [];
+events[0] = {
+  address: '0x7983A52866ab5f48de61F1DECD3F79A5DfE9C1d1',
+  topics: [
+    '0x3990db2d31862302a685e8086b5755072a6e2b5b780af1ee81ece35ee3cd3345'
+  ],
+  blockNumber: 14354,
+  logIndex: 0,
+  removed: false,
+  id: 'log_80b3cef1',
+  transactionHash: '0xaf2ee33f68a1908e7528e08899d9b85afdea839c7bf35d82f4aee23d148d17e6',
+  blockHash: '0x34860c9c54d792cbfc9536d61a4cdc81558e46a7c730e23451ea253565259af2',
+  result: {
+    '0': '0xe062C6acEF6e44a009dfF67bCBdDf2C780DdbC91',
+    '1': '0xe062C6acEF6e44a009dfF67bCBdDf2C780DdbC91',
+    '2': '50',
+    _length_: 3
+  }
+};
+
+events[1] = {
+  address: '0x7983A52866ab5f48de61F1DECD3F79A5DfE9C1d1',
+  topics: [
+    '0x3990db2d31862302a685e8086b5755072a6e2b5b780af1ee81ece35ee3cd3345'
+  ],
+  blockNumber: 14354,
+  logIndex: 0,
+  removed: false,
+  id: 'log_80b3cef2',
+  transactionHash: '0xaf2ee33f68a1908e7528e08899d9b85afdea839c7bf35d82f4aee23d148d17f7',
+  blockHash: '0x34860c9c54d792cbfc9536d61a4cdc81558e46a7c730e23451ea253565259af2',
+  result: {
+    '0': '0xe062C6acEF6e44a009dfF67bCBdDf2C780EdFD52',
+    '1': '0xe062C6acEF6e44a009dfF67bCBdDf2C780EdFD52',
+    '2': '60',
+    _length_: 3
+  }
+};
+
 MongoClient.connect(
     connectionString,
     {
@@ -33,42 +77,15 @@ MongoClient.connect(
     });    
     // insert few data with timeout so that we can watch it happening
     setTimeout(function() {
-    collection.insertOne({ "batman": "bruce wayne" }, function(err) {
+    collection.insertOne(events[0], function(err) {
         assert.ifError(err);
     });
-    }, 1000);
-    setTimeout(function() {
-        collection.insertOne({ "superman": "clark kent" }, function(err) {
-            assert.ifError(err);
-        });
-    }, 2000);
-    setTimeout(function() {
-        collection.insertOne({ "wonder-woman": "diana prince" }, function(err) {
-            assert.ifError(err);
-        });
-    }, 3000);
-    setTimeout(function() {
-        collection.insertOne({ "ironman": "tony stark" }, function(err) {
-            assert.ifError(err);
-        });
-    }, 4000);
-    setTimeout(function() {
-        collection.insertOne({ "spiderman": "peter parker" }, function(err) {
-            assert.ifError(err);
-        });
     }, 5000);
-    // update existing document    
     setTimeout(function() {
-      collection.updateOne({ "ironman": "tony stark" }, { $set: { "ironman": "elon musk" } }, function(err) {
-        assert.ifError(err);
-      });
-    }, 6000);    
-    // delete existing document    
-    setTimeout(function() {
-      collection.deleteOne({ "spiderman": "peter parker" }, function(err) {
-        assert.ifError(err);
-      });
-    }, 7000);
+        collection.insertOne(events[1], function(err) {
+            assert.ifError(err);
+        });
+    }, 10000);
 })
   .catch(err => {
     console.error(err);
