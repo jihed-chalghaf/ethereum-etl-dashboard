@@ -45,10 +45,10 @@ exports.update = async(address) => {
     await Address.findByIdAndUpdate(
         { _id: address.id },
         { 
-            street: address.street,
-            postal_code: address.postal_code,
-            city: address.city,
-            country: address.country
+            'street': address.street,
+            'postal_code': address.postal_code,
+            'city': address.city,
+            'country': address.country
         }, 
         { new: true }
         ).then(new_address => {

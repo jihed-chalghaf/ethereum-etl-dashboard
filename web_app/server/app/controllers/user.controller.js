@@ -5,6 +5,7 @@ const Profile = require('../models/profile.model.js').Profile;
 
 const addressController = require('../controllers/address.controller.js');
 const profileController = require('../controllers/profile.controller.js');
+const subscriptionController = require ('../controllers/subscription.controller.js');
 const {registerValidation}= require ('../models/validation.js');
 
 // Find a single User with a userId
@@ -66,39 +67,47 @@ exports.create = async (req, res) => {
             console.log('profile from request', profile_from_req);
             profileController.create(profile_from_req.gender, profile_from_req.phoneNumber, profile_from_req.birthDate, address)
                 .then(profile => {
-
                     console.log("> Created new Profile\n", profile);
 
-                    // Create a user
-                    const user =  new User({
-                        username : req.body.username,
-                        password : hashedPassword,
-                        firstName : req.body.firstName,
-                        lastName : req.body.lastName,
-                        email : req.body.email,
-                        role : "USER",
-                        deleted: false,
-                        profile: profile ,
-                    });
-
-
-                    // Save User in the database
-                    try {
-                        user.save()
-                        .then(newUser => {
-                            console.log('user created : ', newUser);
-                            res.send(newUser);
-                        })
+                    // Create a subscription
+                    sub = req.body.subscription;
+                    console.log('subscription from request',sub);
+                    subscriptionController.create(sub.contract_address, sub.event_topic)
+                        .then(subscription => {
+                            console.log("> Created new Subscription\n", subscription);
+                            // Create a user
+                            const user =  new User({
+                                username : req.body.username,
+                                password : hashedPassword,
+                                firstName : req.body.firstName,
+                                lastName : req.body.lastName,
+                                email : req.body.email,
+                                role : "USER",
+                                deleted: false,
+                                profile: profile,
+                                subscription: subscription
+                            });
+                            // Save User in the database
+                            try {
+                                user.save()
+                                .then(newUser => {
+                                    console.log('user created : ', newUser);
+                                    res.send(newUser);
+                                })
+                                .catch(err => console.log(err));
+                            } catch (err) {
+                                res.status(400).send(err);
+                            }
+                        }) // subscription catch
                         .catch(err => console.log(err));
-                    } catch (err) {
-                        res.status(400).send(err);
-                    }
-                })
-                .catch(err => console.log(err))
-        })
+                }) // profile catch
+                .catch(err => console.log(err));
+        }) // address catch
         .catch(err => console.log(err));
-
 };
+
+        
+        
 
 // Retrieve and return all users from the database.
 exports.findAll = (req, res) => {
@@ -154,11 +163,11 @@ exports.update = async(req, res) => {
                     User.findByIdAndUpdate(
                         { _id: req.params.userId },
                         {
-                            username: req.body.username,
-                            firstName: req.body.firstName,
-                            lastName: req.body.lastName,
-                            email: req.body.email,
-                            profile: profile,
+                            'username': req.body.username,
+                            'firstName': req.body.firstName,
+                            'lastName': req.body.lastName,
+                            'email': req.body.email,
+                            'profile': profile,
                         },
                         { new: true }
                         ).then(user => {
@@ -202,6 +211,60 @@ exports.update = async(req, res) => {
     });
 };
 
+// Updates only the user's subscription
+exports.updateSubscription = async(req, res) => {
+    // Validate Request
+    if(!req.body) {
+        return res.status(400).send({
+            message: "request body can't be empty"
+        });
+    }
+    // Begin with the update process
+    subscriptionController.update(req.body)
+        .then(subscription => {
+            if(subscription == false) {
+                console.log("subscription is false");
+                return res.status(404).send({
+                    message: "failed to update the user's subscription"
+                });
+            }
+            console.log("Subscription Updated => ", subscription);
+            // updated subscription successfully
+            // updating user object in db finally
+            User.findByIdAndUpdate(
+                { _id: req.params.userId },
+                {
+                    'subscription': subscription
+                },
+                { new: true }
+                ).then(user => {
+                if(!user) {
+                    return res.status(404).send({
+                        message: "User not found with id " + req.params.userId
+                    });
+                }
+                res.json({user: user.transform()});
+            }).catch(err => {
+                if(err.kind === 'ObjectId') {
+                    return res.status(404).send({
+                        message: "User not found with id " + req.params.userId
+                    });                
+                }
+                return res.status(500).send({
+                    message: "Error updating user with id " + req.params.userId
+                });
+            });
+        }).catch(err => {
+            if(err.kind === 'ObjectId') {
+                return res.status(404).send({
+                    message: "Subscription not found with id " + req.body.id
+                });                
+            }
+            return res.status(500).send({
+                message: "Error updating subscription with id " + req.body.id
+            });
+        });
+};
 
 // Delete a User with the specified userId in the request
 exports.delete = async(req, res) => {
@@ -218,6 +281,8 @@ exports.delete = async(req, res) => {
         addressController.delete(formatted_user.profile.address.id);
         // delete profile
         profileController.delete(formatted_user.profile.id);
+        // delete subscription
+        subscriptionController.delete(formatted_user.subscription.id);
     }).catch(err => {
         if(err.kind === 'ObjectId') {
             return res.status(404).send({

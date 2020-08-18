@@ -35,8 +35,8 @@ mongoose.connect(dbConfig.url, {
     process.exit();
 });
 
-// Connecting to the Replica Set
-require('./changestream.js');
+// Connecting to the Replica Set, if you wanna test it, just uncomment the following line
+//require('./changestream.js');
 
 // define a simple route
 app.get('/', (req, res) => {

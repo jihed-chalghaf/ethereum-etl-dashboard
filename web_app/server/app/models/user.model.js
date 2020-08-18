@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const profileSchema = require('../models/profile.model.js').profileSchema;
+const subscriptionSchema = require('../models/subscription.model.js').subscriptionSchema;
 
 const userSchema = mongoose.Schema({
 
@@ -25,7 +26,8 @@ const userSchema = mongoose.Schema({
    },
  deleted: Boolean,
  role : String,
- profile:profileSchema
+ profile: profileSchema,
+ subscription: subscriptionSchema
  },
 
  {
@@ -46,6 +48,9 @@ userSchema.method('transform', function() {
    // 3 - AddressID
    obj.profile.address.id = obj.profile.address._id;
    delete obj.profile.address._id;
+   // 4 - SubscriptionID
+   obj.subscription.id = obj.subscription._id;
+   delete obj.subscription._id;
    
    return obj;
 });

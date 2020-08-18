@@ -29,12 +29,8 @@ export class AuthService {
   login(user: User) {
     const credentials = {email: user.email, password: user.password};
     console.log("credentials => ", JSON.stringify(credentials));
-    //let headers: HttpHeaders = new HttpHeaders();
-    //headers.append('Content-Type', 'application/json');
-    //this.corsHeaders.append('No-Auth', 'True');
     return this.http.post(
       `${this.envService.apiUrl}/login`,
-      // was JSON.stringify(credentials) but mock server doesn't want string, it accepts json object
        credentials,
        {observe: 'response'}
     );
@@ -45,8 +41,6 @@ export class AuthService {
   }
 
   signup(user: User) {
-    //let headers: HttpHeaders = new HttpHeaders();
-    //headers.append("No-Auth", "True");
     this.corsHeaders.append('No-Auth', 'True');
     return this.http.post<User>(`${this.envService.apiUrl + USERS}`, user, {observe: 'response'});
   }

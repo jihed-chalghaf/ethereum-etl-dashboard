@@ -5,6 +5,7 @@ import { NgForm } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 import { Profile } from 'src/app/models/profile.model';
 import { Address } from 'src/app/models/address.model';
+import { Subscription } from 'src/app/models/subscription.model';
 
 @Component({
   selector: 'app-register',
@@ -47,6 +48,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       this.user.password = form.controls.password.value;
       this.user.profile = new Profile();
       this.user.profile.address = new Address();
+      this.user.subscription = new Subscription();
 
       // a little log for testing purposes
       console.log(this.user);

@@ -1,12 +1,15 @@
 const User = require('../models/user.model.js').User;
 const jwt = require ('jsonwebtoken');
 const bcrypt = require ('bcryptjs');
+// plug in env variables
+require('dotenv').config();
+
 // unless
 var unless = require('express-unless');
 
 const {loginValidation}= require ('../models/validation.js');
 
-const accessTokenSecret = 'ptROYMOE3Hb$LWw&4u+[rp14l&OSf#';
+const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 
 // we'll put here all the invalidated tokens, we'll need a way to clean up the old tokens
 let blackListedTokens = [];
@@ -84,7 +87,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
         {id: user._id, role: user.role},
         accessTokenSecret,
-        { expiresIn: '40m' } 
+        { expiresIn: '24h' } 
     );
    // res.header('auth-token',token).send(token);
     res.status(200).json({ user: user.transform(), token: token });

@@ -49,10 +49,10 @@ exports.update = async(profile) => {
     await Profile.findByIdAndUpdate(
         { _id: profile.id },
         {
-            gender: profile.gender,
-            phoneNumber: profile.phoneNumber,
-            birthDate: profile.birthDate,
-            address: profile.address,
+            'gender': profile.gender,
+            'phoneNumber': profile.phoneNumber,
+            'birthDate': profile.birthDate,
+            'address': profile.address
         },
         { new: true }
         ).then(new_profile => {

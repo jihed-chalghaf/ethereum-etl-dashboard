@@ -5,3 +5,4 @@ export const IMAGE = '/image';
 export const USERS = '/users';
 export const IMG_URL = environment.apiUrl + '/img/';
 export const USERS_PROFILE = '/users/profile';
+export const SUBSCRIPTION = '/subscription';

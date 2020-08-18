@@ -36,18 +36,6 @@
         </li>
       </ul>
     </div>
-    <!-- Form -->
-    <form class="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
-      <div class="form-group mb-0" [ngClass]="{ 'focused': focus === true }">
-        <div class="input-group input-group-alternative">
-          <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fas fa-search"></i></span>
-          </div>
-          <input class="form-control" placeholder="Search" type="text" (focus)="focus = true"
-          (blur)="focus = false">
-        </div>
-      </div>
-    </form>
     <!-- User -->
     <ul class="navbar-nav align-items-center d-none d-md-flex">
       <li *ngIf="isLogged" class="nav-item" ngbDropdown placement="bottom-right">
@@ -75,7 +63,11 @@
           </a>
           <a *ngIf="connected" routerLinkActive="active" [routerLink]="['/user-profile']" class="dropdown-item">
             <i class="ni ni-single-02"></i>
-            <span>My profile</span>
+            <span>Profile</span>
+          </a>
+          <a *ngIf="currentUser.role.toUpperCase() === 'USER'" routerLinkActive="active" [routerLink]="['/subscribe']" class="dropdown-item">
+            <i class="ni ni-single-02"></i>
+            <span>Subscribe</span>
           </a>
           <a *ngIf="currentUser.role.toUpperCase() === 'ADMIN'" routerLinkActive="active" [routerLink]="['/admin/users']" class="dropdown-item">
             <i class="ni ni-calendar-grid-58"></i>

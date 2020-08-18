@@ -16,6 +16,8 @@ import { EnvServiceProvider } from './services/env.service.provider';
 import { AuthInterceptorProvider } from './interceptors/auth.interceptor';
 import { NgZorroAntdModule, en_US, NZ_I18N } from 'ng-zorro-antd';
 import { UserLayoutComponent } from './layouts/user-layout/user-layout.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 
 @NgModule({
@@ -28,7 +30,8 @@ import { UserLayoutComponent } from './layouts/user-layout/user-layout.component
     NgbModule,
     RouterModule,
     AppRoutingModule,
-    NgZorroAntdModule
+    NgZorroAntdModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   declarations: [
     AppComponent,

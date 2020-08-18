@@ -3,9 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from "../models/user.model";
 import { EnvService } from './env.service';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
-import { USERS } from './../globals/global_variables';
+import { USERS, SUBSCRIPTION } from './../globals/global_variables';
 import { LocalService } from './local.service';
+import { Subscription } from '../models/subscription.model';
 
 @Injectable({
   providedIn: 'root'
@@ -66,5 +66,9 @@ export class UserService {
 
   saveTokenLocally(result) {
     this.localService.setJsonValue('token',result.body.token);
+  }
+
+  updateSubscription(userId: String, subscription) {
+    return this.http.patch<any>(`${this.envService.apiUrl + USERS}/${userId + SUBSCRIPTION}`, subscription, {observe: 'response' });
   }
 }

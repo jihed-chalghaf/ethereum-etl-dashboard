@@ -6,7 +6,7 @@ function authenticateJWT(req,res,next){
 
     try {
         const token = authHeader.split(' ')[1];
-        const verified = jwt.verify(token, process.env.TOKEN_SECRET);
+        const verified = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         req.user= verified;
         next();
     } catch(err) {

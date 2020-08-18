@@ -9,7 +9,8 @@ const registerValidation = (data) => {
         email: Joi.string().min(6).required().email(),
         password: Joi.string().min(6).required(),
         address: Joi.object(),
-        profile: Joi.object()
+        profile: Joi.object(),
+        subscription: Joi.object()
     });
     return schema.validate(data);
 }

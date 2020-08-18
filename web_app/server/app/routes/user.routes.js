@@ -66,6 +66,9 @@ module.exports = (app) => {
     // Update a User with userId
     router.patch('/users/:userId', users.update);
 
+    // Update a User's subscription using his id
+    router.patch('/users/:userId/subscription', users.updateSubscription);
+
     // Delete a User with userId
     router.delete('/users/:userId', users.delete);
 

@@ -5,7 +5,7 @@
 /tmp
 /out-tsc
 
-# dependencies
+# dependencies - just npm install in the project directory "client" after pulling
 /node_modules
 
 # IDEs and editors
