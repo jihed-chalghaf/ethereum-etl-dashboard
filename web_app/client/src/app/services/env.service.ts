@@ -11,6 +11,9 @@ export class EnvService {
   // API url
   public apiUrl = '';
 
+  // Socket Endpoint
+  public SOCKET_ENDPOINT = '';
+
   public NODE_ENV = '';
 
   // Whether or not to enable debug mode

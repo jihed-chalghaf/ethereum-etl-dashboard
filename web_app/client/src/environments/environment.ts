@@ -6,7 +6,8 @@ export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000',
   secretKey: '6CKm7wpxKGXWsxHHPthGoW9qnVFaazxf',
-  VAPID_PUBLIC: 'BEn3LfY0L7Hq6X2j4lojZJTYkHKkETkt3HO8acYoXWyk9Lxxt8-6Z0bhke1QI7tYnfcHEIMw0Jiu6hovLlbi8lM'
+  VAPID_PUBLIC: 'BEn3LfY0L7Hq6X2j4lojZJTYkHKkETkt3HO8acYoXWyk9Lxxt8-6Z0bhke1QI7tYnfcHEIMw0Jiu6hovLlbi8lM',
+  SOCKET_ENDPOINT: 'http://localhost:3000/api'
 };
 
 /*

@@ -22,6 +22,8 @@ app.use(cors({
 const dbConfig = require('./config/database.config.js');
 const mongoose = require('mongoose');
 
+const userController = require ('./app/controllers/user.controller.js');
+
 
 // Connecting to the users database
 mongoose.connect(dbConfig.url, {
@@ -51,8 +53,33 @@ require('./app/routes/user.routes.js')(app);
 //Middleware
 app.use(express.json());
 
+// require an http server which is essential for our socket-io
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    if(socket.handshake.query.subscription) {
+    var subscription = JSON.parse(socket.handshake.query.subscription);
+        console.log("SUBSCRIPTION IN SOCKET => ", subscription);
+        // all good, now we need to send this as a param to initChangeStream()
+        userController.initChangeStream(socket, subscription);
+    }
+
+    // handle updateSubscription
+    socket.on('updateSubscription', (new_subscription) => {
+        console.log('> Got an updateSubscription event in server.js');
+        userController.initChangeStream(socket, new_subscription);
+    })
+
+    // hande disconnect event..
+    socket.on('disconnect', () => {
+        socket.disconnect();
+        console.log('user disconnected');
+    });
+});
 
 // listen for requests
-app.listen(3000, () => {
+http.listen(3000, () => {
     console.log("Server is listening on port 3000");
 });

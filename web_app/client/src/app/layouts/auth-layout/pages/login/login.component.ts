@@ -4,6 +4,7 @@ import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
+import { SocketioService } from 'src/app/services/socketio.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private socketioService: SocketioService
   ) {}
 
   ngOnInit() {
@@ -59,9 +61,15 @@ export class LoginComponent implements OnInit, OnDestroy {
                 contract_address: currentUser.subscription.contract_address,
                 event_topic: currentUser.subscription.event_topic
               };
-              this.userService.initChangeStream(currentUser.id, pipeline)
+              /*this.userService.initChangeStream(currentUser.id, pipeline)
               .subscribe(res => {
                 console.log("##NEW EVENT DETECTED## => ", res.body.event_data);
+              });*/
+              this.socketioService.setupSocketConnection(pipeline);
+              const socket = this.socketioService.getSocketInstance();
+              this.socketioService.getSocketInstance().on('newEvent', (event) => {
+                console.log("## NEW EVENT DETECTED ## => ", event);
+                // display a notification, in a form of an alert..
               });
             })
             .catch(err => console.log("Error => ", err));

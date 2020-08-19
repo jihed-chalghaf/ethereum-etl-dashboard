@@ -6,6 +6,7 @@ import { CrudService } from 'src/app/services/crud.service';
 import {API_URL, USERS, SUBSCRIPTION} from "../../../../globals/global_variables";
 import { Router } from '@angular/router';
 import { Subscription } from 'src/app/models/subscription.model';
+import { SocketioService } from 'src/app/services/socketio.service';
 
 @Component({
   selector: 'app-subscription',
@@ -22,7 +23,8 @@ export class SubscriptionComponent implements OnInit {
     private formBuilder: FormBuilder,
     private userService: UserService,
     private crudService: CrudService,
-    private router: Router
+    private router: Router,
+    private socketioService: SocketioService
   ) { }
 
   ngOnInit(): void {
@@ -66,10 +68,8 @@ export class SubscriptionComponent implements OnInit {
           contract_address: currentUser.subscription.contract_address,
           event_topic: currentUser.subscription.event_topic
         };
-        this.userService.initChangeStream(currentUser.id, pipeline)
-        .subscribe(res => {
-          console.log("##NEW EVENT DETECTED## => ", res.body.event_data);
-        });
+        // retrieve the current socket instance then emit the updateSubscription event to the server
+        this.socketioService.updateSubscription(pipeline);
       }
     );
     this.router.navigate(['/dashboard']);
