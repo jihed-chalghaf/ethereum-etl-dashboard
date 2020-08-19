@@ -6,3 +6,4 @@ export const USERS = '/users';
 export const IMG_URL = environment.apiUrl + '/img/';
 export const USERS_PROFILE = '/users/profile';
 export const SUBSCRIPTION = '/subscription';
+export const CHANGE_STREAM = '/changeStream';

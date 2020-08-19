@@ -33,6 +33,11 @@
         "action": "deny"
       },
       {
+        "resource": "users/:userId/changeStream",
+        "methods": ["POST"],
+        "action": "deny"
+      },
+      {
         "resource": "profiles/:profileId",
         "methods": ["GET"],
         "action": "allow"
@@ -68,6 +73,11 @@
         "action": "allow"
       },
       {
+        "resource": "users/:userId/changeStream",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
         "resource": "profiles/:profileId",
         "methods": ["GET"],
         "action": "allow"
@@ -100,6 +110,11 @@
       {
         "resource": "users/:userId/subscription",
         "methods": "*",
+        "action": "deny"
+      },
+      {
+        "resource": "users/:userId/changeStream",
+        "methods": ["POST"],
         "action": "deny"
       },
       {

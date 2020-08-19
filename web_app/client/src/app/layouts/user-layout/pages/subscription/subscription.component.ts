@@ -60,6 +60,16 @@ export class SubscriptionComponent implements OnInit {
         console.log(result);
         // update current user
         this.userService.saveUserLocally(result);
+        // reinitiate the change stream with the new pipeline
+        var currentUser = this.userService.getCurrentUser();
+        var pipeline = {
+          contract_address: currentUser.subscription.contract_address,
+          event_topic: currentUser.subscription.event_topic
+        };
+        this.userService.initChangeStream(currentUser.id, pipeline)
+        .subscribe(res => {
+          console.log("##NEW EVENT DETECTED## => ", res.body.event_data);
+        });
       }
     );
     this.router.navigate(['/dashboard']);

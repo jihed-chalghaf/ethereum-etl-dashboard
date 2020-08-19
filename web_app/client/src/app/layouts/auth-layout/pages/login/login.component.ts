@@ -40,13 +40,31 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.error = false;
           this.userService.saveTokenLocally(result);
           this.userService.saveUserLocally(result);
+          var redirectRoute = null;
+          // redirecting after login success
           if(this.userService.getCurrentUser().role.toUpperCase() === 'USER')
           {
-            this.router.navigateByUrl('/user-profile');
+            redirectRoute = '/user-profile';
           }
           else if(this.userService.getCurrentUser().role.toUpperCase() === 'ADMIN')
           {
-            this.router.navigateByUrl('/admin/users');
+            redirectRoute = '/admin/users';
+          }
+          if(redirectRoute) {
+            this.router.navigateByUrl(redirectRoute)
+            .then(() => {
+              // navigation succeeded, now start the change stream and listen to it
+              var currentUser = this.userService.getCurrentUser();
+              var pipeline = {
+                contract_address: currentUser.subscription.contract_address,
+                event_topic: currentUser.subscription.event_topic
+              };
+              this.userService.initChangeStream(currentUser.id, pipeline)
+              .subscribe(res => {
+                console.log("##NEW EVENT DETECTED## => ", res.body.event_data);
+              });
+            })
+            .catch(err => console.log("Error => ", err));
           }
         },
         (err) => {

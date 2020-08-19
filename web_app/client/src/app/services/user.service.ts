@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from "../models/user.model";
 import { EnvService } from './env.service';
 import { Router } from '@angular/router';
-import { USERS, SUBSCRIPTION } from './../globals/global_variables';
+import { USERS, SUBSCRIPTION, CHANGE_STREAM } from './../globals/global_variables';
 import { LocalService } from './local.service';
 import { Subscription } from '../models/subscription.model';
 
@@ -70,5 +70,9 @@ export class UserService {
 
   updateSubscription(userId: String, subscription) {
     return this.http.patch<any>(`${this.envService.apiUrl + USERS}/${userId + SUBSCRIPTION}`, subscription, {observe: 'response' });
+  }
+
+  initChangeStream(userId: String, pipeline) {
+    return this.http.post<any>(`${this.envService.apiUrl + USERS}/${userId + CHANGE_STREAM}`, pipeline, {observe: 'response' });
   }
 }

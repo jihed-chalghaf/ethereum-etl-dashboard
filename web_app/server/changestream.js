@@ -9,9 +9,11 @@ See Change Events for more information on the change stream response document fo
 */
 const pipeline = [
   {
-    $project: { documentKey: false }  }
+    '$match': { 'fullDocument.address': '0x7983A52866ab5f48de61F1DECD3F79A5DfE9C1d1' }
+  }
 ];
-
+pipeline[0]['$match']['fullDocument.topics'] = ['0x3990db2d31862302a685e8086b5755072a6e2b5b780af1ee81ece35ee3cd3345'];
+console.log("##PIPELINE## => ", pipeline);
 const connectionString = dbConfig.url_rs;
 
 // fake events for testing
@@ -40,7 +42,7 @@ events[0] = {
 };
 
 events[1] = {
-  address: '0x7983A52866ab5f48de61F1DECD3F79A5DfE9C1d1',
+  address: '0x7983A52866ab5f48de61F1DECD3F79A5DfE9C1d2',
   topics: [
     '0x3990db2d31862302a685e8086b5755072a6e2b5b780af1ee81ece35ee3cd3345'
   ],
@@ -74,6 +76,7 @@ MongoClient.connect(
     const changeStream = collection.watch(pipeline);    // start listen to changes
     changeStream.on("change", function(change) {
       console.log(change);
+      console.log(change.fullDocument);
     });    
     // insert few data with timeout so that we can watch it happening
     setTimeout(function() {

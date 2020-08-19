@@ -72,6 +72,9 @@ module.exports = (app) => {
     // Delete a User with userId
     router.delete('/users/:userId', users.delete);
 
+    // Initiate or Update the change stream for a user
+    router.post('/users/:userId/changeStream', users.initChangeStream);
+
     // Login
     router.post('/login', auth.login);
 
