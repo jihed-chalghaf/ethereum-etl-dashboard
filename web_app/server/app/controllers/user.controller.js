@@ -448,7 +448,7 @@ exports.initChangeStream = async(socket, subscription) => {
 
         // SHOULD END HERE, I'LL DELETE THE REST WHEN EVERYTHING IS TESTED
         // testing some inserts
-        var events = [];
+        /*var events = [];
         events[0] = {
             address: '0x7983A52866ab5f48de61F1DECD3F79A5DfE9C1d1',
             topics: [
@@ -496,7 +496,7 @@ exports.initChangeStream = async(socket, subscription) => {
             collection.insertOne(events[1], function(err) {
                 assert.ifError(err);
             });
-        }, 15000);
+        }, 15000);*/
     })
     .catch(err => {
         console.log("failed to update the user's subscription");
