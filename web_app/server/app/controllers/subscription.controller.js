@@ -1,5 +1,9 @@
+const { Collection } = require('mongoose');
+
 const Subscription = require('../models/subscription.model.js').Subscription;
 
+var eventsCollection = Collection;
+var usersCollection = Collection;
 
 // Create a subscription
 exports.create =  function (contract_address, event_topic){
@@ -74,4 +78,131 @@ exports.delete = function(subscriptionId) {
         }
         console.log("Could not delete Subscription with id ", subscriptionId);
     });
+};
+
+exports.setEventsCollection = function(collection) {
+    eventsCollection = collection;
+};
+
+exports.setUsersCollection = function(collection) {
+    usersCollection = collection;
+};
+
+exports.eventsEmittedPerBlock = async(subscription) => {
+    var pipeline = [
+        {
+            $match: {'address': subscription.contract_address}
+        },
+        {
+            $group: { _id: '$blockNumber', events_count: { $sum: 1 } }
+        },
+        {
+            $project: { blockNumber: '$_id', events_count: 1, _id: 0 }
+        },
+        { 
+            $sort: { blockNumber: 1 } 
+        }
+    ];
+    // toArray() returns the documents in an array instead of returning the cursor
+    return eventsCollection.aggregate(pipeline).toArray();
+};
+
+exports.eventTypesEmittedPerBlock = async(subscription) => {
+    var pipeline = [
+        {
+            $match: {'address': subscription.contract_address}
+        },
+        {
+            $group: { _id: {blockNumber: '$blockNumber', event_id: '$id'} }
+        },
+        {
+            $project: { blockNumber: '$_id.blockNumber', events_id: '$_id.event_id', _id: 0 }
+        },
+        {
+            $group: { _id: '$blockNumber', events_count: { $sum: 1 } }
+        },
+        {
+            $project: { blockNumber: '$_id', events_count: 1, _id: 0 }
+        },
+        { 
+            $sort: { blockNumber: 1 } 
+        }
+    ];
+    // toArray() returns the documents in an array instead of returning the cursor
+    return eventsCollection.aggregate(pipeline).toArray();
+};
+
+exports.transactionsEmittedPerBlock = async(subscription) => {
+    var pipeline = [
+        {
+            $match: {'address': subscription.contract_address}
+        },
+        {
+            $group: { _id: {blockNumber: '$blockNumber', transactionHash: '$transactionHash'} }
+        },
+        {
+            $project: { blockNumber: '$_id.blockNumber', transactionHash: '$_id.transactionHash', _id: 0 }
+        },
+        {
+            $group: { _id: '$blockNumber', transactions_count: { $sum: 1 } }
+        },
+        {
+            $project: { blockNumber: '$_id', transactions_count: 1, _id: 0 }
+        },
+        { 
+            $sort: { blockNumber: 1 } 
+        }
+    ];
+    // toArray() returns the documents in an array instead of returning the cursor
+    return eventsCollection.aggregate(pipeline).toArray();
+};
+
+exports.eventTopicsEmittedPerBlock = async(subscription) => {
+    var pipeline = [
+        {
+            $match: {'address': subscription.contract_address}
+        },
+        { // event topics count per contract address, not per blockNumber
+            $group: { _id: { address: '$address', topic: '$topics' } }
+        },
+        {
+            $project: { address: '$_id.address', topic: '$_id.topic', _id: 0 }
+        },
+        {
+            $group: { _id: '$address', topics_count: { $sum: 1 } }
+        },
+        {
+            $project: { contract_address: '$_id', topics_count: 1, _id: 0 }
+        }
+    ];
+    // toArray() returns the documents in an array instead of returning the cursor
+    return eventsCollection.aggregate(pipeline).toArray();
+};
+
+exports.subscribedUsersCount = async(subscription) => {
+    var pipeline = [
+        {
+            $match: {'subscription.contract_address': subscription.contract_address}
+        },
+        {
+            $group: { _id: '$subscription.contract_address', subscribers_count: { $sum: 1 } }
+        },
+        {
+            $project: { contract_address: '$_id', subscribers_count: 1, _id: 0 }
+        }
+    ];
+    // toArray() returns the documents in an array instead of returning the cursor
+    return usersCollection.aggregate(pipeline).toArray();
+};
+
+// function that returns some metrics in a json object
+exports.getMetrics = async(subscription) => {
+    var metrics = {
+        eventsEmittedPerBlock: await this.eventsEmittedPerBlock(subscription),
+        eventTypesEmittedPerBlock: await this.eventTypesEmittedPerBlock(subscription),
+        transactionsEmittedPerBlock: await this.transactionsEmittedPerBlock(subscription),
+        eventTopicsEmitted: await this.eventTopicsEmittedPerBlock(subscription),
+        subscribedUsersCount: await this.subscribedUsersCount(subscription)
+    };
+    return JSON.stringify(metrics);
 };

@@ -49,8 +49,10 @@ userSchema.method('transform', function() {
    obj.profile.address.id = obj.profile.address._id;
    delete obj.profile.address._id;
    // 4 - SubscriptionID
-   obj.subscription.id = obj.subscription._id;
-   delete obj.subscription._id;
+   if(obj.subscription) {
+      obj.subscription.id = obj.subscription._id;
+      delete obj.subscription._id;
+   }
    
    return obj;
 });

@@ -8,6 +8,7 @@ import {
   chartExample1,
   chartExample2
 } from "../../../../variables/charts";
+import { SocketioService } from 'src/app/services/socketio.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,9 +23,17 @@ export class DashboardComponent implements OnInit {
   public clicked: boolean = true;
   public clicked1: boolean = false;
 
-  constructor() { }
+  constructor(private socketioService: SocketioService) { }
 
   ngOnInit() {
+    // send an event to request metrics whenever the user opens the dashboard page
+    this.socketioService.getSocketInstance().emit('requestMetrics');
+    // each time we receive a metrics event, we'll use that data to display it
+    this.socketioService.getSocketInstance().on('metrics', (metrics) => {
+      console.log(`metrics without parse => ${metrics}`);
+      console.log(typeof(metrics));
+      console.log('metrics => ',JSON.parse(metrics));
+    });
 
     this.datasets = [
       [0, 20, 10, 30, 15, 40, 20, 60, 60],

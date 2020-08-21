@@ -8,6 +8,7 @@ import { UserService } from 'src/app/services/user.service';
 import { ImageService } from 'src/app/services/image.service';
 import { IMG_URL } from 'src/app/globals/global_variables';
 import { LocalService } from 'src/app/services/local.service';
+import { SocketioService } from 'src/app/services/socketio.service';
 
 @Component({
   selector: 'app-navbar',
@@ -29,7 +30,8 @@ export class NavbarComponent implements OnInit, DoCheck {
     private authService: AuthService,
     private userService: UserService,
     private imageService: ImageService,
-    private localService: LocalService
+    private localService: LocalService,
+    private socketioService: SocketioService
     ) {
     this.location = location;
   }
@@ -81,6 +83,7 @@ export class NavbarComponent implements OnInit, DoCheck {
         this.image = null;
         this.currentUser = null;
         this.router.navigate(['/auth/login']);
+        this.socketioService.getSocketInstance().emit('disconnect');
       }
     );
   }

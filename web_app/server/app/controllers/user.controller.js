@@ -406,6 +406,17 @@ function setupPipeline(subscription) {
     return pipeline;
 }
 
+// update the collection for the subscription controller, then emit metrics
+function emitMetrics(socket, subscription, collection) {
+    subscriptionController.setEventsCollection(collection);
+    subscriptionController.getMetrics(subscription)
+    .then((metrics) => {
+        socket.emit('metrics', metrics);
+        console.log('> Sent an emit() metrics..');
+        console.log('metrics = ', metrics);
+    });
+}
+
 // Start Change Stream
 exports.initChangeStream = async(socket, subscription) => {
     // Validate request
@@ -432,18 +443,26 @@ exports.initChangeStream = async(socket, subscription) => {
         const db = client.db("EventsDB");
         const collection = db.collection("Events");
 
-        var changeStream = collection.watch(pipeline);    // start listen to changes
+        var changeStream = collection.watch(pipeline);    // start listening to changes
         changeStream.on("change", function(change) {
           console.log(change);
           // send data using socket.io to the client app
           socket.emit('newEvent', change.fullDocument);
-          console.log('> Sent an emit()..');
+          console.log('> Sent an emit() newEvent..');
+          // update the collection for our metrics to be in real time, might not be needed
+          emitMetrics(socket, subscription, collection);
         });
 
         // if there's an updateSubscription event launched by the client, we'll stop this changeStream
         socket.on('updateSubscription', (new_subscription) => {
             console.log('> Got an updateSubscription event in changeStream');
             changeStream.close();
+        });
+
+        // if there's a requestMetrics event launched by the client, we'll send him the metrics
+        socket.on('requestMetrics', () => {
+            console.log('> Got a requestMetrics event in changeStream'); 
+            emitMetrics(socket, subscription, collection);
         });
 
         // SHOULD END HERE, I'LL DELETE THE REST WHEN EVERYTHING IS TESTED

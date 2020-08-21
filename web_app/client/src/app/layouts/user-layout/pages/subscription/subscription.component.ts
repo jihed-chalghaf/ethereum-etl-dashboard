@@ -7,6 +7,7 @@ import {API_URL, USERS, SUBSCRIPTION} from "../../../../globals/global_variables
 import { Router } from '@angular/router';
 import { Subscription } from 'src/app/models/subscription.model';
 import { SocketioService } from 'src/app/services/socketio.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-subscription',
@@ -68,8 +69,22 @@ export class SubscriptionComponent implements OnInit {
           contract_address: currentUser.subscription.contract_address,
           event_topic: currentUser.subscription.event_topic
         };
+        // display an alert showing update success
+        Swal.fire({
+          text: 'Updated Successfully',
+          icon: 'success',
+          timer: 2000
+        });
         // retrieve the current socket instance then emit the updateSubscription event to the server
         this.socketioService.updateSubscription(pipeline);
+      },
+      (error) => {
+      //display an alert showing update failure
+      Swal.fire({
+        html: `Update Failed<br>error: ${error}`,
+        icon: 'error',
+        timer: 8000
+      });
       }
     );
     this.router.navigate(['/dashboard']);

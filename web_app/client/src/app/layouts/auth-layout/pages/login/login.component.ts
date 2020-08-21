@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     console.log("NOTIFICATIONS => ", this.notifications);
     Swal.mixin({
       confirmButtonText: 'Next &rarr;',
-      showCancelButton: true,
+      showCancelButton: false,
     })
     .queue(this.notifications)
     .then(() => {
