@@ -157,7 +157,7 @@ exports.transactionsEmittedPerBlock = async(subscription) => {
     return eventsCollection.aggregate(pipeline).toArray();
 };
 
-exports.eventTopicsEmittedPerBlock = async(subscription) => {
+exports.eventTopicsEmitted = async(subscription) => {
     var pipeline = [
         {
             $match: {'address': subscription.contract_address}
@@ -201,7 +201,7 @@ exports.getMetrics = async(subscription) => {
         eventsEmittedPerBlock: await this.eventsEmittedPerBlock(subscription),
         eventTypesEmittedPerBlock: await this.eventTypesEmittedPerBlock(subscription),
         transactionsEmittedPerBlock: await this.transactionsEmittedPerBlock(subscription),
-        eventTopicsEmitted: await this.eventTopicsEmittedPerBlock(subscription),
+        eventTopicsEmitted: await this.eventTopicsEmitted(subscription),
         subscribedUsersCount: await this.subscribedUsersCount(subscription)
     };
     return JSON.stringify(metrics);

@@ -8,6 +8,7 @@ import { UserLayoutRoutes } from './user-layout.routing';
 import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { EnumToArrayPipe } from 'src/app/pipes/enum-to-array.pipe';
 import { SubscriptionComponent } from './pages/subscription/subscription.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 
 
@@ -17,7 +18,8 @@ import { SubscriptionComponent } from './pages/subscription/subscription.compone
     UserProfileComponent,
     UpdateProfileComponent,
     EnumToArrayPipe,
-    SubscriptionComponent
+    SubscriptionComponent,
+    DashboardComponent
   ],
   imports: [
     CommonModule,
