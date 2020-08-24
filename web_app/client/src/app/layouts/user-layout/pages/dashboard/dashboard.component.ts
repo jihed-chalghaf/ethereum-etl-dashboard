@@ -1,13 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import Chart from 'chart.js';
-
-// core components
-import {
-  chartOptions,
-  parseOptions,
-  chartExample1,
-  chartExample2
-} from "../../../../variables/charts";
 import { SocketioService } from 'src/app/services/socketio.service';
 
 @Component({
@@ -56,7 +48,7 @@ export class DashboardComponent implements OnInit {
         this.eventTopicsData.push(x.events_count)
       }
     );
-    console.log("eventTopicsData => ", this.eventTopicsData);
+    console.log("eventsData => ", this.eventTopicsData);
   }
 
   setTransactionsData() {
@@ -70,7 +62,7 @@ export class DashboardComponent implements OnInit {
 
   setDataToEvents() {
     this.linechart.data.datasets[0].data = this.eventTopicsData;
-    this.linechart.options.scales.yAxes[0].scaleLabel.labelString = 'Events';
+    this.linechart.options.scales.yAxes[0].scaleLabel.labelString = 'Events Emitted';
     this.labelString = 'Events';
     console.log(this.linechart.data.datasets[0].data);
     this.linechart.update();
@@ -78,7 +70,7 @@ export class DashboardComponent implements OnInit {
 
   setDataToTransactions() {
     this.linechart.data.datasets[0].data = this.transactionsData;
-    this.linechart.options.scales.yAxes[0].scaleLabel.labelString = 'Transactions';
+    this.linechart.options.scales.yAxes[0].scaleLabel.labelString = 'Transactions Emitted';
     this.labelString = 'Transactions';
     console.log(this.linechart.data.datasets[0].data);
     this.linechart.update();
@@ -126,7 +118,9 @@ export class DashboardComponent implements OnInit {
             },
             ticks: {
               fontColor: '#20d3b5',
-              fontSize: 18
+              fontSize: 18,
+              beginAtZero: true,
+              callback: function(value) {if (value % 1 === 0) {return value;}}
             }
           }],
         }
@@ -134,9 +128,16 @@ export class DashboardComponent implements OnInit {
     });  
   }
 
-  ngOnInit() {
-    this.labelString = 'Events';
+  resetData() {
+    this.labels = [];
+    this.eventTopicsData = [];
+    this.transactionsData = [];
     this.data = this.eventTopicsData;
+  }
+
+  ngOnInit() {
+    this.labelString = 'Events Emitted';
+    this.resetData();
     this.initializeChart();
     // send an event to request metrics whenever the user opens the dashboard page
     this.socketioService.getSocketInstance().emit('requestMetrics');
@@ -145,10 +146,12 @@ export class DashboardComponent implements OnInit {
       console.log('metrics => ',JSON.parse(metrics));
       // assign our metrics
       this.metrics = JSON.parse(metrics);
+      this.resetData();
       this.assignMetrics();
       this.setLabels();
       this.setEventsData();
       this.setTransactionsData();
+      this.linechart.data.datasets[0].data = this.eventTopicsData;
       this.linechart.update();
     });
 
