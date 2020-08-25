@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import Chart from 'chart.js';
 import { SocketioService } from 'src/app/services/socketio.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,7 +24,10 @@ export class DashboardComponent implements OnInit {
   private transactionsData = [];
   private labelString: any;
 
-  constructor(private socketioService: SocketioService) { }
+  constructor(
+    private socketioService: SocketioService,
+    private route: ActivatedRoute
+  ) { }
 
   assignMetrics() {
     this.eventTypesEmittedPerBlock = this.metrics.eventTypesEmittedPerBlock;
@@ -38,7 +42,6 @@ export class DashboardComponent implements OnInit {
         this.labels.push(x.blockNumber)
       }
     );
-    console.log("labels => ", this.labels);
     this.linechart.data.labels = this.labels;
   }
 
@@ -48,7 +51,6 @@ export class DashboardComponent implements OnInit {
         this.eventTopicsData.push(x.events_count)
       }
     );
-    console.log("eventsData => ", this.eventTopicsData);
   }
 
   setTransactionsData() {
@@ -57,14 +59,12 @@ export class DashboardComponent implements OnInit {
         this.transactionsData.push(x.transactions_count)
       }
     );
-    console.log("transactionsData => ", this.transactionsData);
   }
 
   setDataToEvents() {
     this.linechart.data.datasets[0].data = this.eventTopicsData;
     this.linechart.options.scales.yAxes[0].scaleLabel.labelString = 'Events Emitted';
     this.labelString = 'Events';
-    console.log(this.linechart.data.datasets[0].data);
     this.linechart.update();
   }
 
@@ -72,7 +72,6 @@ export class DashboardComponent implements OnInit {
     this.linechart.data.datasets[0].data = this.transactionsData;
     this.linechart.options.scales.yAxes[0].scaleLabel.labelString = 'Transactions Emitted';
     this.labelString = 'Transactions';
-    console.log(this.linechart.data.datasets[0].data);
     this.linechart.update();
   }
 
@@ -139,11 +138,14 @@ export class DashboardComponent implements OnInit {
     this.labelString = 'Events Emitted';
     this.resetData();
     this.initializeChart();
-    // send an event to request metrics whenever the user opens the dashboard page
-    this.socketioService.getSocketInstance().emit('requestMetrics');
+    const previous_route = this.route.snapshot.paramMap.get('previousUrl');
+    console.log('previous_route => ', previous_route);
+    if(!previous_route) {
+      // send an event to request metrics whenever the user opens the dashboard page
+      this.socketioService.getSocketInstance().emit('requestMetrics');
+    }
     // each time we receive a metrics event, we'll use that data to display it
     this.socketioService.getSocketInstance().on('metrics', (metrics) => {
-      console.log('metrics => ',JSON.parse(metrics));
       // assign our metrics
       this.metrics = JSON.parse(metrics);
       this.resetData();
@@ -154,34 +156,5 @@ export class DashboardComponent implements OnInit {
       this.linechart.data.datasets[0].data = this.eventTopicsData;
       this.linechart.update();
     });
-
-    /*var chartOrders = document.getElementById('chart-orders');
-
-    parseOptions(Chart, chartOptions());
-
-
-    var ordersChart = new Chart(chartOrders, {
-      type: 'bar',
-      options: chartExample2.options,
-      data: chartExample2.data
-    });
-
-    var chartSales = document.getElementById('chart-sales');
-
-    this.salesChart = new Chart(chartSales, {
-			type: 'line',
-			options: chartExample1.options,
-			data: chartExample1.data
-    });*/
   }
-
-
-
-
-
-  public updateOptions() {
-    this.salesChart.data.datasets[0].data = this.data;
-    this.salesChart.update();
-  }
-
 }

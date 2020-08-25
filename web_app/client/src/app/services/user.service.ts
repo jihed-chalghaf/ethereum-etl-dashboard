@@ -2,10 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from "../models/user.model";
 import { EnvService } from './env.service';
-import { Router } from '@angular/router';
 import { USERS, SUBSCRIPTION, CHANGE_STREAM } from './../globals/global_variables';
 import { LocalService } from './local.service';
-import { Subscription } from '../models/subscription.model';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +16,6 @@ export class UserService {
   constructor(
     private http: HttpClient,
     private envService: EnvService,
-    private router: Router,
     private localService: LocalService
   ) { }
 

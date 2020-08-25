@@ -38,12 +38,14 @@ export class SubscriptionComponent implements OnInit {
       }
     );
     this.subscriptionToCreate= this.formBuilder.group({
+      blockchain_url: '',
       contract_address: '',
       event_topic: ''
     });
   }
 
   initializeForm(){
+    this.subscriptionToCreate.controls['blockchain_url'].setValue(this.currentUser.subscription?.blockchain_url);
     this.subscriptionToCreate.controls['contract_address'].setValue(this.currentUser.subscription?.contract_address);
     this.subscriptionToCreate.controls['event_topic'].setValue(this.currentUser.subscription?.event_topic);
   }
@@ -52,6 +54,7 @@ export class SubscriptionComponent implements OnInit {
     console.log('submitted');
     const jsonSubscription = {
       id: this.currentSubscription.id,
+      blockchain_url: this.subscriptionToCreate.value.blockchain_url,
       contract_address: this.subscriptionToCreate.value.contract_address,
       event_topic: this.subscriptionToCreate.value.event_topic
     };
@@ -66,9 +69,12 @@ export class SubscriptionComponent implements OnInit {
         // reinitiate the change stream with the new pipeline
         var currentUser = this.userService.getCurrentUser();
         var pipeline = {
+          blockchain_url: currentUser.subscription.blockchain_url,
           contract_address: currentUser.subscription.contract_address,
           event_topic: currentUser.subscription.event_topic
         };
+        // close the old changeStream and MongoClient connection
+        this.socketioService.getSocketInstance().emit('closeChangeStreamAndDBConnection');
         // display an alert showing update success
         Swal.fire({
           text: 'Updated Successfully',
@@ -81,13 +87,13 @@ export class SubscriptionComponent implements OnInit {
       (error) => {
       //display an alert showing update failure
       Swal.fire({
-        html: `Update Failed<br>error: ${error}`,
+        html: `Update Failed<br>error: ${error.error.message}`,
         icon: 'error',
         timer: 8000
       });
       }
     );
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard', {previousUrl: 'subscribe'}]);
   }
 
 }

@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 const subscriptionSchema = mongoose.Schema({
+    blockchain_url : {
+        type: String,
+        required: false
+    },
     contract_address : {
         type: String,
         required: false

@@ -224,52 +224,75 @@ exports.updateSubscription = async(req, res) => {
             message: "request body can't be empty"
         });
     }
+    // force a subscription to have blockchain url & contract address not empty
+    if(req.body.blockchain_url !== '' && req.body.contract_address == '') {
+        console.log("You need to also provide the contract address");
+        return res.status(400).send({
+            message: "You need to also provide the contract address"
+        });
+    }
+    else if(req.body.blockchain_url == '' && req.body.contract_address !== '') {
+        console.log("You need to also provide the blockchain url");
+        return res.status(400).send({
+            message: "You need to also provide the blockchain url"
+        });
+    }
+    else if(req.body.blockchain_url == '' && req.body.contract_address == '' && req.body.event_topic !== '') {
+        console.log("You need to also provide the blockchain url & the contract address");
+        return res.status(400).send({
+            message: "You need to also provide the blockchain url & the contract address"
+        });
+    }
+    // Now everything is good
     // Begin with the update process
-    subscriptionController.update(req.body)
-        .then(subscription => {
-            if(subscription == false) {
-                console.log("subscription is false");
-                return res.status(404).send({
-                    message: "failed to update the user's subscription"
-                });
-            }
-            console.log("Subscription Updated => ", subscription);
-            // updated subscription successfully
-            // updating user object in db finally
-            User.findByIdAndUpdate(
-                { _id: req.params.userId },
-                {
-                    'subscription': subscription
-                },
-                { new: true }
-                ).then(user => {
-                if(!user) {
+    else {
+        subscriptionController.update(req.body)
+            .then(subscription => {
+                if(subscription == false) {
+                    console.log("subscription is false");
                     return res.status(404).send({
-                        message: "User not found with id " + req.params.userId
+                        message: "failed to update the user's subscription"
                     });
                 }
-                res.json({user: user.transform()});
+                console.log("Subscription Updated => ", subscription);
+                // updated subscription successfully
+                // updating user object in db finally
+                User.findByIdAndUpdate(
+                    { _id: req.params.userId },
+                    {
+                        'subscription': subscription
+                    },
+                    { new: true }
+                    ).then(user => {
+                    if(!user) {
+                        return res.status(404).send({
+                            message: "User not found with id " + req.params.userId
+                        });
+                    }
+                    res.json({user: user.transform()});
+                }).catch(err => {
+                    if(err.kind === 'ObjectId') {
+                        return res.status(404).send({
+                            message: "User not found with id " + req.params.userId
+                        });                
+                    }
+                    return res.status(500).send({
+                        message: "Error updating user with id " + req.params.userId
+                    });
+                });
             }).catch(err => {
                 if(err.kind === 'ObjectId') {
                     return res.status(404).send({
-                        message: "User not found with id " + req.params.userId
+                        message: "Subscription not found with id " + req.body.id
                     });                
                 }
                 return res.status(500).send({
-                    message: "Error updating user with id " + req.params.userId
+                    message: "Error updating subscription with id " + req.body.id
                 });
             });
-        }).catch(err => {
-            if(err.kind === 'ObjectId') {
-                return res.status(404).send({
-                    message: "Subscription not found with id " + req.body.id
-                });                
-            }
-            return res.status(500).send({
-                message: "Error updating subscription with id " + req.body.id
-            });
-        });
+    }
 };
+
 
 // Delete a User with the specified userId in the request
 exports.delete = async(req, res) => {
@@ -396,7 +419,7 @@ exports.createAdmin = async (admin) => {
 function setupPipeline(subscription) {
     var pipeline = [
         {
-          '$match': { 'fullDocument.address': subscription.contract_address }
+          '$match': { 'fullDocument.url': subscription.blockchain_url, 'fullDocument.address': subscription.contract_address }
         }
     ];
     // If the user mentioned an event_topic in his subscription, then add it in our pipeline match filter
@@ -417,6 +440,19 @@ function emitMetrics(socket, subscription, collection) {
     });
 }
 
+// Connect to the replicaSet
+exports.connectToReplicaSet = async() => {
+    const connectionString = dbConfig.url_rs;
+
+    return MongoClient.connect(
+        connectionString,
+        {
+            useUnifiedTopology: false,
+            useNewUrlParser: true
+        }
+    );
+};
+
 // Start Change Stream
 exports.initChangeStream = async(socket, subscription) => {
     // Validate request
@@ -427,22 +463,17 @@ exports.initChangeStream = async(socket, subscription) => {
     // Define our pipeline
     var pipeline = setupPipeline(subscription);
     console.log("##PIPELINE## => ", pipeline);
-    // Connection String for our replicaSet
-    const connectionString = dbConfig.url_rs;
-
-    MongoClient.connect(
-        connectionString,
-        {
-            useUnifiedTopology: false,
-            useNewUrlParser: true
-        }
-    )
+    this.connectToReplicaSet()
     .then(client => {
         console.log("Connected correctly to the replica set");
         // specify db and collections
         const db = client.db("EventsDB");
         const collection = db.collection("Events");
-
+        // this emit is necessary otherwise if we leave requestMetrics in dashboard component
+        // it won't wait for this connection to be established then it won't display correct data
+        // so I ended up forcing the dashboard to look for the previous url which I send only after
+        // subscribing
+        emitMetrics(socket, subscription, collection);
         var changeStream = collection.watch(pipeline);    // start listening to changes
         changeStream.on("change", function(change) {
           console.log(change);
@@ -453,69 +484,22 @@ exports.initChangeStream = async(socket, subscription) => {
           emitMetrics(socket, subscription, collection);
         });
 
-        // if there's an updateSubscription event launched by the client, we'll stop this changeStream
-        socket.on('updateSubscription', (new_subscription) => {
-            console.log('> Got an updateSubscription event in changeStream');
-            changeStream.close();
-        });
-
         // if there's a requestMetrics event launched by the client, we'll send him the metrics
         socket.on('requestMetrics', () => {
             console.log('> Got a requestMetrics event in changeStream'); 
             emitMetrics(socket, subscription, collection);
         });
 
-        // SHOULD END HERE, I'LL DELETE THE REST WHEN EVERYTHING IS TESTED
-        // testing some inserts
-        /*var events = [];
-        events[0] = {
-            address: '0x7983A52866ab5f48de61F1DECD3F79A5DfE9C1d1',
-            topics: [
-                '0x3990db2d31862302a685e8086b5755072a6e2b5b780af1ee81ece35ee3cd3345'
-            ],
-            blockNumber: 14354,
-            logIndex: 0,
-            removed: false,
-            id: 'log_80b3cef1',
-            transactionHash: '0xaf2ee33f68a1908e7528e08899d9b85afdea839c7bf35d82f4aee23d148d17e6',
-            blockHash: '0x34860c9c54d792cbfc9536d61a4cdc81558e46a7c730e23451ea253565259af2',
-            result: {
-                '0': '0xe062C6acEF6e44a009dfF67bCBdDf2C780DdbC91',
-                '1': '0xe062C6acEF6e44a009dfF67bCBdDf2C780DdbC91',
-                '2': '50',
-                _length_: 3
-            }
-        };
-
-        events[1] = {
-            address: '0x7983A52866ab5f48de61F1DECD3F79A5DfE9C1d1',
-            topics: [
-                '0x3990db2d31862302a685e8086b5755072a6e2b5b780af1ee81ece35ee3cd3344'
-            ],
-            blockNumber: 14354,
-            logIndex: 0,
-            removed: false,
-            id: 'log_80b3cef2',
-            transactionHash: '0xaf2ee33f68a1908e7528e08899d9b85afdea839c7bf35d82f4aee23d148d17f7',
-            blockHash: '0x34860c9c54d792cbfc9536d61a4cdc81558e46a7c730e23451ea253565259af2',
-            result: {
-                '0': '0xe062C6acEF6e44a009dfF67bCBdDf2C780EdFD52',
-                '1': '0xe062C6acEF6e44a009dfF67bCBdDf2C780EdFD52',
-                '2': '60',
-                _length_: 3
-            }
-        };
-        // insert few data with timeout so that we can watch it happening
-        setTimeout(function() {
-        collection.insertOne(events[0], function(err) {
-            assert.ifError(err);
-        });
-        }, 10000);
-        setTimeout(function() {
-            collection.insertOne(events[1], function(err) {
-                assert.ifError(err);
+        // close changeStream and MongoClient when user disconnects
+        socket.on('closeChangeStreamAndDBConnection', () => {
+            console.log('User disconnecting, closing changeStream and MongoClient..');
+            changeStream.close().then(() => {
+                console.log('Closed ChangeStream Successfully? ',changeStream.isClosed());
             });
-        }, 15000);*/
+            client.close().then(() => {
+                console.log('Closed DB connection Successfully? ', !client.isConnected());
+            });
+        });
     })
     .catch(err => {
         console.log("failed to update the user's subscription");

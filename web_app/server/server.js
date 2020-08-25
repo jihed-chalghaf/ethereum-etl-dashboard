@@ -83,8 +83,12 @@ io.on('connection', (socket) => {
 
     // hande disconnect event..
     socket.on('disconnect', () => {
+        console.log('user closed connection (logout)');
+    });
+
+    // hande close event..
+    socket.on('close', () => {
         socket.disconnect();
-        console.log('user disconnected');
     });
 });
 

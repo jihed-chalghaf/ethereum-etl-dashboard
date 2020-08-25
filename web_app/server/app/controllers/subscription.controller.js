@@ -6,8 +6,9 @@ var eventsCollection = Collection;
 var usersCollection = Collection;
 
 // Create a subscription
-exports.create =  function (contract_address, event_topic){
+exports.create =  function (blockchain_url, contract_address, event_topic){
     const subscription = new Subscription ({
+        blockchain_url,
         contract_address,
         event_topic
     });
@@ -46,6 +47,7 @@ exports.update = async(subscription) => {
     await Subscription.findByIdAndUpdate(
         { _id: subscription.id },
         {
+            'blockchain_url': subscription.blockchain_url,
             'contract_address': subscription.contract_address,
             'event_topic': subscription.event_topic
         },
@@ -91,7 +93,7 @@ exports.setUsersCollection = function(collection) {
 exports.eventsEmittedPerBlock = async(subscription) => {
     var pipeline = [
         {
-            $match: {'address': subscription.contract_address}
+            $match: {'url': subscription.blockchain_url, 'address': subscription.contract_address}
         },
         {
             $group: { _id: '$blockNumber', events_count: { $sum: 1 } }
@@ -110,7 +112,7 @@ exports.eventsEmittedPerBlock = async(subscription) => {
 exports.eventTypesEmittedPerBlock = async(subscription) => {
     var pipeline = [
         {
-            $match: {'address': subscription.contract_address}
+            $match: {'url': subscription.blockchain_url, 'address': subscription.contract_address}
         },
         {
             $group: { _id: {blockNumber: '$blockNumber', event_id: '$id'} }
@@ -135,7 +137,7 @@ exports.eventTypesEmittedPerBlock = async(subscription) => {
 exports.transactionsEmittedPerBlock = async(subscription) => {
     var pipeline = [
         {
-            $match: {'address': subscription.contract_address}
+            $match: {'url': subscription.blockchain_url, 'address': subscription.contract_address}
         },
         {
             $group: { _id: {blockNumber: '$blockNumber', transactionHash: '$transactionHash'} }
@@ -160,7 +162,7 @@ exports.transactionsEmittedPerBlock = async(subscription) => {
 exports.eventTopicsEmitted = async(subscription) => {
     var pipeline = [
         {
-            $match: {'address': subscription.contract_address}
+            $match: {'url': subscription.blockchain_url, 'address': subscription.contract_address}
         },
         { // event topics count per contract address, not per blockNumber
             $group: { _id: { address: '$address', topic: '$topics' } }
@@ -182,7 +184,7 @@ exports.eventTopicsEmitted = async(subscription) => {
 exports.subscribedUsersCount = async(subscription) => {
     var pipeline = [
         {
-            $match: {'subscription.contract_address': subscription.contract_address}
+            $match: {'subscription.blockchain_url': subscription.blockchain_url, 'subscription.contract_address': subscription.contract_address}
         },
         {
             $group: { _id: '$subscription.contract_address', subscribers_count: { $sum: 1 } }

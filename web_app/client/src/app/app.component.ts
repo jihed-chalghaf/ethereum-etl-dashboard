@@ -23,6 +23,7 @@ export class AppComponent implements OnInit {
       // recreate socket instance, since user is connected and has a subscription
       console.log(`whoops, there's no socket connection .. :(, creating ...`);
       var pipeline = {
+        blockchain_url: this.currentUser.subscription.blockchain_url,
         contract_address: this.currentUser.subscription.contract_address,
         event_topic: this.currentUser.subscription.event_topic
       };

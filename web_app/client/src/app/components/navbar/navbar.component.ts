@@ -59,6 +59,7 @@ export class NavbarComponent implements OnInit, DoCheck {
 
   startChangeStream() {
     var pipeline = {
+      blockchain_url: this.currentUser.subscription.blockchain_url,
       contract_address: this.currentUser.subscription.contract_address,
       event_topic: this.currentUser.subscription.event_topic
     };
@@ -114,13 +115,14 @@ export class NavbarComponent implements OnInit, DoCheck {
     this.authService.logout().subscribe(
       (res) => {
         console.log('logging out');
+        this.socketioService.getSocketInstance().emit('closeChangeStreamAndDBConnection');
+        this.socketioService.getSocketInstance().emit('close');
         // clear data from localStorage
         this.localService.clearToken();
         this.isLogged = false;
         this.image = null;
         this.currentUser = null;
         this.router.navigate(['/auth/login']);
-        this.socketioService.getSocketInstance().emit('disconnect');
       }
     );
   }
