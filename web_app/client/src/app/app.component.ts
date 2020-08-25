@@ -19,13 +19,13 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.currentUser = this.userService.getCurrentUser();
-    var pipeline = {
-      contract_address: this.currentUser.subscription.contract_address,
-      event_topic: this.currentUser.subscription.event_topic
-    };
     if(this.currentUser && this.currentUser.subscription && this.socketioService.getSocketInstance() == null) {
       // recreate socket instance, since user is connected and has a subscription
       console.log(`whoops, there's no socket connection .. :(, creating ...`);
+      var pipeline = {
+        contract_address: this.currentUser.subscription.contract_address,
+        event_topic: this.currentUser.subscription.event_topic
+      };
       this.socketioService.setupSocketConnection(pipeline);
       console.log(`wohoo, socket created successfully`);
     }

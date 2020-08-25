@@ -9,6 +9,7 @@ import { ImageService } from 'src/app/services/image.service';
 import { IMG_URL } from 'src/app/globals/global_variables';
 import { LocalService } from 'src/app/services/local.service';
 import { SocketioService } from 'src/app/services/socketio.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-navbar',
@@ -23,6 +24,8 @@ export class NavbarComponent implements OnInit, DoCheck {
   isLogged: Boolean;
   currentUser: User;
   public image;
+  events = [];
+
   constructor(
     location: Location,  
     private element: ElementRef, 
@@ -36,12 +39,46 @@ export class NavbarComponent implements OnInit, DoCheck {
     this.location = location;
   }
 
+  displayNotification(event) {
+    Swal.fire({
+      position: 'top-end',
+      icon: 'info',
+      title: '<strong>A new event has been detected</strong>',
+      html: `<strong>contract address:</strong> ${event.address}<br>` + 
+            `<strong>event topic:</strong> ${event.topics[0]}<br>` +
+            `<strong>sender address:</strong> ${event.result[0]}<br>` +
+            `<strong>reciever address:</strong> ${event.result[1]}<br>` +
+            `<strong>amount:</strong> ${event.result[2]}`,
+      showConfirmButton: true,
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Got it!',
+    }).then(() => {
+      this.events = this.events.filter(obj => obj !== event);
+    });
+  }
+
+  startChangeStream() {
+    var pipeline = {
+      contract_address: this.currentUser.subscription.contract_address,
+      event_topic: this.currentUser.subscription.event_topic
+    };
+    this.socketioService.setupSocketConnection(pipeline);
+    this.socketioService.getSocketInstance().on('newEvent', (event) => {
+      console.log("## NEW EVENT DETECTED ## => ", event);
+      // display a notification using sweetalert2
+      this.events.push(event);
+    });
+  }
+
   ngOnInit() {
     this.listTitles = ROUTES.filter(listTitle => listTitle);
     this.connected = this.authService.isLogged();
     this.currentUser = this.userService.getCurrentUser();
     console.log(this.currentUser);
     this.isLogged = this.authService.isLogged();
+    if(this.isLogged) {
+      this.startChangeStream();
+    }
     this.imageService.getImage().subscribe(
       (data) => {
         console.log('data: ' + data);

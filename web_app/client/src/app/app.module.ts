@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
@@ -24,6 +25,7 @@ import { SocketioService } from './services/socketio.service';
 @NgModule({
   imports: [
     BrowserAnimationsModule,
+    BrowserModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,

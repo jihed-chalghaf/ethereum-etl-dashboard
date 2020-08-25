@@ -44,8 +44,8 @@
             <span class="avatar avatar-sm rounded-circle">
               <img id="user_image" alt="Image placeholder" [src]="this.image || 'assets/img/theme/team-4-800x800.jpg'">
             </span>
-            <div class="media-body ml-2 d-none d-lg-block">
-              <span class="mb-0 text-sm  font-weight-bold">{{currentUser.username }}</span>
+            <div *ngIf="currentUser.username" class="media-body ml-2 d-none d-lg-block">
+              <span class="mb-0 text-sm  font-weight-bold">{{currentUser?.username}}</span>
             </div>
           </div>
         </a>
@@ -79,6 +79,26 @@
             <span>Logout</span>
           </a>
         </div>
+      </li>
+      <li *ngIf="isLogged" class="nav-item" ngbDropdown placement="bottom-right">
+        <a role="button" ngbDropdownToggle>
+          <div class="media align-items-center">
+            <span class="p-overlay-badge">
+              <i class="pi pi-bell" style="font-size: 2em"></i>
+              <span class="p-badge">{{this.events.length}}</span>
+            </span>
+          </div>
+        </a>
+        <div class="dropdown-menu-arrow dropdown-menu-right" ngbDropdownMenu>
+          <div class=" dropdown-header noti-title">
+            <h6 *ngIf="events.length > 0" class="text-overflow m-0">Notifications</h6>
+            <h6 *ngIf="events.length == 0" class="text-overflow m-0">No notifications so far</h6>
+          </div>
+          <a *ngFor="let event of events" class="dropdown-item" (click)="displayNotification(event)">
+            <i class="ni ni-single-02"></i>
+            <span>New Notification!</span>
+          </a>
+        </div>  
       </li>
     </ul>
   </div>

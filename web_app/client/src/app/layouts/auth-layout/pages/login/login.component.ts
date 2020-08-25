@@ -103,7 +103,8 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.router.navigateByUrl(redirectRoute)
             .then(() => {
               // navigation succeeded, now start the change stream and listen to it
-              this.startChangeStream();
+              //this.startChangeStream();
+              console.log("Logged in Successfully!");
             })
             .catch(err => console.log("Error => ", err));
           }
