@@ -77,7 +77,8 @@ export class NavbarComponent implements OnInit, DoCheck {
     this.currentUser = this.userService.getCurrentUser();
     console.log(this.currentUser);
     this.isLogged = this.authService.isLogged();
-    if(this.isLogged) {
+    if(this.isLogged && this.currentUser.subscription) {
+      console.log('[i] Starting change stream..');
       this.startChangeStream();
     }
     this.imageService.getImage().subscribe(
@@ -115,8 +116,12 @@ export class NavbarComponent implements OnInit, DoCheck {
     this.authService.logout().subscribe(
       (res) => {
         console.log('logging out');
-        this.socketioService.getSocketInstance().emit('closeChangeStreamAndDBConnection');
-        this.socketioService.getSocketInstance().emit('close');
+        // close socket connection if the current user is subscribed
+        if(this.currentUser.subscription) {
+          console.log('[i] Closing changeStream, DB connection and socket connection..');
+          this.socketioService.getSocketInstance().emit('closeChangeStreamAndDBConnection');
+          this.socketioService.getSocketInstance().emit('close');
+        }
         // clear data from localStorage
         this.localService.clearToken();
         this.isLogged = false;
@@ -126,5 +131,4 @@ export class NavbarComponent implements OnInit, DoCheck {
       }
     );
   }
-
 }

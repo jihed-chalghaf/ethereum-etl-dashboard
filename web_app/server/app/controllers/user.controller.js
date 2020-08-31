@@ -116,7 +116,7 @@ exports.create = async (req, res) => {
 
 // Retrieve and return all users from the database.
 exports.findAll = (req, res) => {
-    User.find()
+    User.find({role: 'USER'})
     .then(users => {
         for(var user of users) {
             user = user.transform();
@@ -436,7 +436,7 @@ function emitMetrics(socket, subscription, collection) {
     .then((metrics) => {
         socket.emit('metrics', metrics);
         console.log('> Sent an emit() metrics..');
-        console.log('metrics = ', metrics);
+        //console.log('metrics = ', metrics);
     });
 }
 
@@ -462,10 +462,10 @@ exports.initChangeStream = async(socket, subscription) => {
     }
     // Define our pipeline
     var pipeline = setupPipeline(subscription);
-    console.log("##PIPELINE## => ", pipeline);
+    console.log("[i] ChangeStream Pipeline => ", pipeline);
     this.connectToReplicaSet()
     .then(client => {
-        console.log("Connected correctly to the replica set");
+        console.log("Connected successfully to the replica set");
         // specify db and collections
         const db = client.db("EventsDB");
         const collection = db.collection("Events");
@@ -494,10 +494,7 @@ exports.initChangeStream = async(socket, subscription) => {
         socket.on('closeChangeStreamAndDBConnection', () => {
             console.log('User disconnecting, closing changeStream and MongoClient..');
             changeStream.close().then(() => {
-                console.log('Closed ChangeStream Successfully? ',changeStream.isClosed());
-            });
-            client.close().then(() => {
-                console.log('Closed DB connection Successfully? ', !client.isConnected());
+                client.close();
             });
         });
     })

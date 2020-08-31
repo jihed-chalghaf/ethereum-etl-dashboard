@@ -32,7 +32,7 @@ mongoose.connect(dbConfig.url, {
     useUnifiedTopology: true,
     useNewUrlParser: true
 }).then((client) => {
-    console.log("Successfully connected to the database");
+    console.log("Connected successfully to the USERS database");
     require('./initiateAdmin.js');
     // set users collection in subscription controller in order to do metrics related to users collection
     /*User.find()
@@ -70,7 +70,7 @@ io.on('connection', (socket) => {
     console.log('a user connected');
     if(socket.handshake.query.subscription) {
     var subscription = JSON.parse(socket.handshake.query.subscription);
-        console.log("SUBSCRIPTION IN SOCKET => ", subscription);
+        console.log("[i] Subscription received in Socket => ", subscription);
         // all good, now we need to send this as a param to initChangeStream()
         userController.initChangeStream(socket, subscription);
     };
@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
 
     // hande disconnect event..
     socket.on('disconnect', () => {
-        console.log('user closed connection (logout)');
+        console.log('[i] User closed connection (logout)');
     });
 
     // hande close event..

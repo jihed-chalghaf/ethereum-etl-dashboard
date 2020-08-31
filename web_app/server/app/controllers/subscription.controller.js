@@ -42,7 +42,6 @@ exports.findOne = (req, res) => {
 exports.update = async(subscription) => {
     console.log("Inside Subscription update fct");
     var sub = new Subscription();
-    console.log("SUB## => ", sub);
     // Find Subscription and update it with the request body
     await Subscription.findByIdAndUpdate(
         { _id: subscription.id },
@@ -53,9 +52,8 @@ exports.update = async(subscription) => {
         },
         { new: true }
         ).then(new_subscription => {
-            console.log("NEW SUBSCRIPTION Transformed => ", new_subscription.transform());
             sub = new_subscription;
-            console.log("SUB FINAL## => ", sub);
+            console.log("[i] Updated Subscription => ", sub);
         })
         .catch(err => {
             if(err.kind === 'ObjectId') {

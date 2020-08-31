@@ -1,7 +1,6 @@
 const Address = require('../models/address.model.js');
 const Profile = require('../models/profile.model.js').Profile;
 const multer = require('multer');
-const { func } = require('@hapi/joi');
 const upload = multer({dest: 'img/'});
 
 

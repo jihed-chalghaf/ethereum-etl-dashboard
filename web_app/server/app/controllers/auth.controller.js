@@ -18,6 +18,7 @@ let blackListedTokens = [];
 // a good way to use it is by calling it in the authenticateJWT function :]
 // which means on every request that needs authentication, we'll update/clean our blacklist
 function cleanBlackList() {
+    console.log('\t[x] Cleaning tokens blacklist');
     if (blackListedTokens.length > 0) {
       // keep only the tokens that didn't surpass 40 mins since their push time
       blackListedTokens = blackListedTokens.filter(element => (Date.now() - JSON.parse(element)["push_time"]) < 4800000);
@@ -27,7 +28,7 @@ function cleanBlackList() {
 function token_exists(black_list, token) {
     let exist = false;
     black_list.forEach(token_entry => {
-      console.log("###EQUALS### ??? => " + String(JSON.parse(token_entry)["token"]).localeCompare(String(token)));
+      //console.log("###EQUALS### ??? => " + String(JSON.parse(token_entry)["token"]).localeCompare(String(token)));
       if (String(JSON.parse(token_entry)["token"]).localeCompare(String(token)) == 0) {
         exist = true;
         return exist;
@@ -39,10 +40,10 @@ function token_exists(black_list, token) {
   
 // Express middleware that handles the authentication process
 const authenticateJWT = (req, res, next) => {
-    console.log("##Starting authenticateJWT##");
+    console.log("[x] Starting Authentication Using JWT");
     cleanBlackList();
     const authHeader = req.headers.authorization;
-    console.log("authHeader ==> ", authHeader);
+    //console.log("authHeader ==> ", authHeader);
   
     if (authHeader) {
       const token = authHeader.split(' ')[1];
@@ -57,8 +58,7 @@ const authenticateJWT = (req, res, next) => {
         }
         // assign the full verified user that we got back from our verify fct
         req.user = user;
-        console.log("req.user ==> ", user);
-        console.log("req.user.role ==> ", req.user.role);
+        console.log("[i] User ==> ", JSON.stringify(user, null, 4));
         next();
       });
     } else {
@@ -95,7 +95,7 @@ exports.login = async (req, res) => {
 
 // logout a user
 exports.logout = async (req, res) => {
-    console.log('================ Logout')
+    console.log('[x] Logout');
 
     // two ways to logout: 
     // 1- user will logout before token expiry, in this case we'll come here and invalidate his token this way
@@ -107,7 +107,7 @@ exports.logout = async (req, res) => {
       // on logout, we'll put the user's token in a blacklist, so that he won't be able to use it again
       const token_entry = JSON.stringify({ "token": token, "push_time": Date.now() });
       blackListedTokens.push(token_entry);
-      console.log("###LOGOUT - BlackListedTokens### => " + blackListedTokens);
+      console.log("[i] Black-listed tokens: " + blackListedTokens);
     }
   
     return res.status(200).json({ result: "Logout successful" });
