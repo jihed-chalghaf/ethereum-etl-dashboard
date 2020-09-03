@@ -25,6 +25,10 @@ export class NavbarComponent implements OnInit, DoCheck {
   currentUser: User;
   public image;
   events = [];
+  tableStyle = "border: 1px solid black;border-collapse: collapse;margin-left: -25px;"
+  thStyle = "border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: middle;background-color: #03a9fc;color: white;";
+  tdStyle = "border: 1px solid black;border-collapse: collapse;padding: 5px;";
+  trStyle = "background-color: #f2f2f2;"
 
   constructor(
     location: Location,  
@@ -41,14 +45,29 @@ export class NavbarComponent implements OnInit, DoCheck {
 
   displayNotification(event) {
     Swal.fire({
-      position: 'top-end',
+      //position: 'top-end',
       icon: 'info',
       title: '<strong>A new event has been detected</strong>',
-      html: `<strong>contract address:</strong> ${event.address}<br>` + 
-            `<strong>event topic:</strong> ${event.topics[0]}<br>` +
-            `<strong>sender address:</strong> ${event.result[0]}<br>` +
-            `<strong>reciever address:</strong> ${event.result[1]}<br>` +
-            `<strong>amount:</strong> ${event.result[2]}`,
+      html: `<strong>event topic:</strong> ${event.topics[0]}<br><br>` +
+            `<strong>event parameters:</strong>
+             <table style="${this.tableStyle}">
+              <tr>
+                <th style="${this.thStyle}">Id</th>
+                <th style="${this.thStyle}">Value</th>
+              </tr>
+              <tr style="${this.trStyle}">
+                <td style="${this.tdStyle}">1</td>
+                <td style="${this.tdStyle}">${event.result[0]}</td>
+              </tr>
+              <tr>
+                <td style="${this.tdStyle}">2</td>
+                <td style="${this.tdStyle}">${event.result[1]}</td>
+              </tr>
+              <tr style="${this.trStyle}">
+                <td style="${this.tdStyle}">3</td>
+                <td style="${this.tdStyle}">${event.result[2]}</td>
+              </tr>
+             </table>`,
       showConfirmButton: true,
       confirmButtonColor: '#3085d6',
       confirmButtonText: 'Got it!',

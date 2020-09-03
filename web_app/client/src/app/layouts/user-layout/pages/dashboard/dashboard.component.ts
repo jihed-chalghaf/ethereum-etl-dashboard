@@ -77,6 +77,8 @@ export class DashboardComponent implements OnInit {
 
   initializeChart() {
     this.linechart = new Chart('canvas', {
+      responsive: true,
+      maintainAspectRatio: false,
       type: 'line',
       data: {
         labels: this.labels,

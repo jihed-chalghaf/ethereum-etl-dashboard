@@ -185,10 +185,10 @@ exports.subscribedUsersCount = async(subscription) => {
             $match: {'subscription.blockchain_url': subscription.blockchain_url, 'subscription.contract_address': subscription.contract_address}
         },
         {
-            $group: { _id: '$subscription.contract_address', subscribers_count: { $sum: 1 } }
+            $group: { _id: { address: '$subscription.contract_address', url: '$subscription.blockchain_url' }, subscribers_count: { $sum: 1 } }
         },
         {
-            $project: { contract_address: '$_id', subscribers_count: 1, _id: 0 }
+            $project: { contract_address: '$_id.address', blockchain_url: '$_id.url', subscribers_count: 1, _id: 0 }
         }
     ];
     // toArray() returns the documents in an array instead of returning the cursor
