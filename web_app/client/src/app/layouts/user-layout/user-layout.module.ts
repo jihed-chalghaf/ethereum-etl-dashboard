@@ -9,6 +9,7 @@ import { NgZorroAntdModule } from 'ng-zorro-antd';
 import { EnumToArrayPipe } from 'src/app/pipes/enum-to-array.pipe';
 import { SubscriptionComponent } from './pages/subscription/subscription.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 
@@ -26,7 +27,8 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forChild(UserLayoutRoutes),
-    NgZorroAntdModule
+    NgZorroAntdModule,
+    MatSnackBarModule
   ]
 })
 export class UserLayoutModule { }

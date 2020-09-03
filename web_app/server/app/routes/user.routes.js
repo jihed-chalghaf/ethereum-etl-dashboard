@@ -75,6 +75,12 @@ module.exports = (app) => {
     // Initiate or Update the change stream for a user
     router.post('/users/:userId/changeStream', users.initChangeStream);
 
+    // Update subscriptions array in nedb
+    router.get('/users/:userId/subscriptions', users.getSubscriptions);
+
+    // patch the subscription (deleting means making it empty in our case)
+    router.patch('/users/:userId/subscriptions', users.deleteSubscription);
+
     // Login
     router.post('/login', auth.login);
 

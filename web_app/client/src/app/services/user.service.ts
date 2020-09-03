@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from "../models/user.model";
 import { EnvService } from './env.service';
-import { USERS, SUBSCRIPTION, CHANGE_STREAM } from './../globals/global_variables';
+import { USERS, SUBSCRIPTION, CHANGE_STREAM, SUBSCRIPTIONS } from './../globals/global_variables';
 import { LocalService } from './local.service';
 
 @Injectable({
@@ -71,5 +71,17 @@ export class UserService {
 
   initChangeStream(userId: String, pipeline) {
     return this.http.post<any>(`${this.envService.apiUrl + USERS}/${userId + CHANGE_STREAM}`, pipeline, {observe: 'response' });
+  }
+
+  getSubscriptions(userId: String) {
+    return this.http.get<any>(`${this.envService.apiUrl + USERS}/${userId + SUBSCRIPTIONS}`);
+  }
+
+  deleteSubscription(userId: String, subscription) {
+    return this.http.patch<any>(`${this.envService.apiUrl + USERS}/${userId + SUBSCRIPTIONS}`, subscription, {observe: 'response' });
+  }
+
+  addSubscription(userId: String, subscription) {
+    return this.http.post<any>(`${this.envService.apiUrl + USERS}/${userId + SUBSCRIPTION}`, subscription, {observe: 'response' });
   }
 }

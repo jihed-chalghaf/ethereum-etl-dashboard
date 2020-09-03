@@ -13,6 +13,11 @@ const assert = require("assert");
 const dbConfig = require('./../../config/database.config.js');
 const { exit } = require('process');
 
+const nedb = require('nedb');
+const subs_db = new nedb('subscriptions.db');
+// load data from the file
+subs_db.loadDatabase();
+
 // Find a single User with a userId
 exports.findOne = (req, res) => {
     User.findById(req.params.userId)
@@ -237,10 +242,10 @@ exports.updateSubscription = async(req, res) => {
             message: "You need to also provide the blockchain url"
         });
     }
-    else if(req.body.blockchain_url == '' && req.body.contract_address == '' && req.body.event_topic !== '') {
-        console.log("You need to also provide the blockchain url & the contract address");
+    else if(req.body.blockchain_url == '' && req.body.contract_address == '') {
+        console.log("You need to provide the blockchain url & the contract address");
         return res.status(400).send({
-            message: "You need to also provide the blockchain url & the contract address"
+            message: "You need to provide the blockchain url & the contract address"
         });
     }
     // Now everything is good
@@ -269,7 +274,46 @@ exports.updateSubscription = async(req, res) => {
                             message: "User not found with id " + req.params.userId
                         });
                     }
-                    res.json({user: user.transform()});
+                    // check if the subscription already exists in nedb, in this case update it
+                    // in the other case, create a new entry
+                    new_sub = {
+                        "blockchain_url": subscription.blockchain_url,
+                        "contract_address": subscription.contract_address
+                    };
+                    if(subscription.event_topic) {
+                        new_sub["event_topic"] = subscription.event_topic;
+                    }
+                    // add the new subscription to nedb subs if it's not already existant
+                    subs_db.findOne(
+                        {
+                            userId: req.params.userId,
+                            subscription: new_sub
+                        },
+                        function(err, doc) {
+                            if(!doc) {
+                                // we don't have a duplicate for the new subscription, so we insert it
+                                subs_db.insert({
+                                    userId: req.params.userId,
+                                    subscription: new_sub
+                                });
+                            }
+                        }
+                    );
+                    // retrieve the subs array for the user
+                    subs_db.find(
+                        {
+                            userId: req.params.userId
+                        },
+                        function(err, docs) {
+                            if(docs) {
+                                for(doc in docs) {
+                                    doc = doc.subscription;
+                                }
+                            }
+                            res.json({user: user.transform(), subscriptions: docs});
+                        }
+                    );
+                    //res.json({user: user.transform(), subscriptions: });
                 }).catch(err => {
                     if(err.kind === 'ObjectId') {
                         return res.status(404).send({
@@ -504,3 +548,124 @@ exports.initChangeStream = async(socket, subscription) => {
         exit(0);
     });
 };
+
+exports.getSubscriptions = async(req, res) => {
+    subs_db.find(
+        {
+            userId: req.params.userId
+        },
+        function(err, docs) {
+            res.json({subscriptions: docs});
+        }
+    );
+}
+
+function compareSubs(sub1,sub2) {
+    return(
+        sub1.blockchain_url == sub2.blockchain_url &&
+        sub1.contract_address == sub2.contract_address &&
+        sub1.event_topic == sub2.event_topic
+    );
+}
+
+exports.deleteSubscription = async(req, res) => {
+    // delete the subscription from nedb
+    console.log('req.body');
+    console.log(req.body);
+    subs_db.remove(
+        {
+            userId: req.params.userId,
+            subscription: req.body
+        }, 
+        function (err, numRemoved) {
+            console.log('removed => ', numRemoved);
+            console.log('error => ', err);
+        }
+    );
+    // reset the user's subscription if the deleted sub is active
+    User.findById(req.params.userId).then(
+        user => {
+            if(!user) {
+                console.log("User not found..");
+                exit(0);
+            }
+            // compare user's subscription with the one that'll be deleted
+            if(compareSubs(user.subscription, req.body)) {
+                // we need to make the active sub empty
+                console.log(`the sub you're trying to delete is your active sub..`);
+                empty_sub = {
+                    id: user.subscription.id,
+                    blockchain_url: '',
+                    contract_address: '',
+                    event_topic: ''
+                };
+                console.log('empty sub ==>');
+                console.log(empty_sub);
+                subscriptionController.update(empty_sub).then(
+                    new_sub => {
+                        if(new_sub == false) {
+                            console.log("subscription is false");
+                            return res.status(404).send({
+                                message: "failed to update the user's subscription"
+                            });
+                        }
+                        console.log('new sub =>');
+                        console.log(new_sub);
+                        // subscription updated, now we need to push that change in user object
+                        User.findByIdAndUpdate(
+                            { _id: req.params.userId },
+                            {
+                                'subscription': new_sub
+                            },
+                            { new: true }
+                            ).then(user => {
+                                if(!user) {
+                                    return res.status(404).send({
+                                        message: "User not found with id " + req.params.userId
+                                    });
+                                }
+                                console.log('user updated => ');
+                                console.log(user);
+                                // retrieve the subs array for the user
+                                subs_db.find(
+                                    {
+                                        userId: req.params.userId
+                                    },
+                                    function(err, docs) {
+                                        if(docs) {
+                                            for(doc in docs) {
+                                                doc = doc.subscription;
+                                            }
+                                        }
+                                        res.json({user: user.transform(), subscriptions: docs});
+                                    }
+                                );
+                            })
+                    }
+                )
+            }
+            else {
+                // the deleted subscription is not the active one, return directly the user and subs
+                User.findById(
+                    { _id: req.params.userId }
+                ).then(
+                    user => {
+                        subs_db.find(
+                            {
+                                userId: req.params.userId
+                            },
+                            function(err, docs) {
+                                if(docs) {
+                                    for(doc in docs) {
+                                        doc = doc.subscription;
+                                    }
+                                }
+                                res.json({user: user.transform(), subscriptions: docs});
+                            }
+                        ); 
+                    }
+                )
+            }
+        }
+    )
+}

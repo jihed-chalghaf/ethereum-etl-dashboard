@@ -11,42 +11,55 @@
   </div>
   <div class="container-fluid mt--7">
     <div class="row">
-      <div class="col-xl-8 ant-col-lg-offset-4 order-xl-1">
-        <div class="card bg-secondary shadow">
-          <!-- Subscription Form -->
-          <form role="form" [formGroup]="subscriptionToCreate" >
-            <div class="card-body">
-              <h6 class="heading-small text-muted mb-4">Subscription information</h6>
-              <div class="pl-lg-4">
-                <div class="row">
-                  <div class="col-lg-4">
-                    <div class="form-group">
-                      <label class="form-control-label" for="input-blockchain-url">Blockchain URL</label>
-                      <input type="text" id="input-blockchain-url" class="form-control form-control-alternative" formControlName="blockchain_url" placeholder="{{this.currentUser?.subscription?.blockchain_url}}" value="{{this.currentUser?.subscription?.blockchain_url}}">
-                    </div>
-                  </div>
-                  <div class="col-lg-4">
-                    <div class="form-group">
-                      <label class="form-control-label" for="input-contract-address">Contract Address</label>
-                      <input type="text" id="input-contract-address" class="form-control form-control-alternative" formControlName="contract_address" placeholder="{{this.currentUser?.subscription?.contract_address}}" value="{{this.currentUser?.subscription?.contract_address}}">
-                    </div>
-                  </div>
-                  <div class="col-lg-4">
-                    <div class="form-group">
-                      <label class="form-control-label" for="input-event-topic">Event Topic</label>
-                      <input formControlName="event_topic" type="text" id="input-event-topic" class="form-control form-control-alternative" placeholder="{{this.currentUser?.subscription?.event_topic}}" value="{{this.currentUser?.subscription?.event_topic}}">
-                    </div>
-                  </div>
-              </div>
-              <div class="row align-items-center">
-                <div class="col-4 ant-col-offset-21">
-                  <button (click)="submit()" type="submit" class="btn btn-primary">submit</button>
-                </div>
-              </div>
-              </div>
+      <div class="col">
+          <!-- Subscriptions List -->
+          <div class="card shadow">
+            <div class="card-header border-0">
+              <h3 class="mb-0">Subscriptions</h3>
             </div>
-          </form>
-        </div>
+            <div class="table-responsive">
+              <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                <tr>
+                  <th scope="col">Blockchain URL</th>
+                  <th scope="col">Contract Address</th>
+                  <th scope="col">Event Topic</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody *ngIf="subscriptions">
+                <tr *ngFor="let sub of subscriptions">
+                  <td>
+                    {{sub.subscription.blockchain_url}}
+                  </td>
+                  <td>
+                    {{sub.subscription.contract_address}}
+                  </td>
+                  <td>
+                    {{sub.subscription.event_topic}}
+                  </td>
+                  <td>
+                    <span *ngIf="!sub.deleted" class="badge badge-dot">
+                      <i class="bg-success"></i> available
+                    </span>
+                    <span *ngIf="sub.deleted" class="badge badge-dot mr-4">
+                      <i class="bg-danger"></i> deleted
+                    </span>
+                  </td>
+                  <td class="text-right">
+                    <button (click)="submit(sub.subscription)" class="btn btn-success" style="display:inline-block;">activate</button>
+                    <button (click)="deleteSubscription(sub.subscription)" class="btn btn-danger" style="display:inline-block;">X</button>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+    
+            <div class="card-footer py-4" *ngIf="subscriptions">
+              <nz-pagination [nzPageIndex]=currentPage  [nzTotal]=subscriptions.length  [nzPageSize]=sizePage (nzPageIndexChange)="paginate($event)"></nz-pagination>
+            </div>
+          </div>
       </div>
     </div>
   </div>

@@ -38,6 +38,16 @@
         "action": "deny"
       },
       {
+        "resource": "users/:userId/subscriptions",
+        "methods": ["GET", "PATCH"],
+        "action": "deny"
+      },
+      {
+        "resource": "users/:userId/subscription",
+        "methods": ["DELETE"],
+        "action": "deny"
+      },
+      {
         "resource": "profiles/:profileId",
         "methods": ["GET"],
         "action": "allow"
@@ -78,6 +88,11 @@
         "action": "allow"
       },
       {
+        "resource": "users/:userId/subscriptions",
+        "methods": ["GET", "PATCH"],
+        "action": "allow"
+      },
+      {
         "resource": "profiles/:profileId",
         "methods": ["GET"],
         "action": "allow"
@@ -115,6 +130,11 @@
       {
         "resource": "users/:userId/changeStream",
         "methods": ["POST"],
+        "action": "deny"
+      },
+      {
+        "resource": "users/:userId/subscriptions",
+        "methods": ["GET", "PATCH"],
         "action": "deny"
       },
       {
