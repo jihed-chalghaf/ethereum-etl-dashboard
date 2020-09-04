@@ -14,8 +14,8 @@
       <div class="col">
           <!-- Subscriptions List -->
           <div class="card shadow">
-            <div class="card-header border-0">
-              <h3 class="mb-0">Subscriptions</h3>
+            <div class="card-header border-0" style="text-align: center;">
+              <h3 class="mb-0">SUBSCRIPTIONS</h3>
             </div>
             <div class="table-responsive">
               <table class="table align-items-center table-flush">
@@ -29,7 +29,7 @@
                 </tr>
                 </thead>
                 <tbody *ngIf="subscriptions">
-                <tr *ngFor="let sub of subscriptions">
+                <tr *ngFor="let sub of subs_in_current_page">
                   <td>
                     {{sub.subscription.blockchain_url}}
                   </td>
@@ -52,8 +52,30 @@
                     <button (click)="deleteSubscription(sub.subscription)" class="btn btn-danger" style="display:inline-block;">X</button>
                   </td>
                 </tr>
+                <tr *ngIf="clicked">
+                  <td>
+                    <input type="text" [(ngModel)]="this.new_subscription.blockchain_url">
+                  </td>
+                  <td>
+                    <input type="text" [(ngModel)]="this.new_subscription.contract_address">
+                  </td>
+                  <td>
+                    <input type="text" [(ngModel)]="this.new_subscription.event_topic">
+                  </td>
+                  <td>
+                    <span class="badge badge-dot mr-4">
+                      <i class="bg-danger"></i> unavailable
+                    </span>
+                  </td>
+                  <td>
+                    <button (click)="addSubscription()" class="btn btn-primary" style="display:inline-block;">Add</button>
+                  </td>
+                </tr>
                 </tbody>
               </table>
+            </div>
+            <div style="text-align:center;">
+              <button *ngIf="!clicked" (click)="toggleClick()" class="btn btn-primary">Add</button>
             </div>
     
             <div class="card-footer py-4" *ngIf="subscriptions">

@@ -570,8 +570,6 @@ function compareSubs(sub1,sub2) {
 
 exports.deleteSubscription = async(req, res) => {
     // delete the subscription from nedb
-    console.log('req.body');
-    console.log(req.body);
     subs_db.remove(
         {
             userId: req.params.userId,
@@ -599,8 +597,6 @@ exports.deleteSubscription = async(req, res) => {
                     contract_address: '',
                     event_topic: ''
                 };
-                console.log('empty sub ==>');
-                console.log(empty_sub);
                 subscriptionController.update(empty_sub).then(
                     new_sub => {
                         if(new_sub == false) {
@@ -668,4 +664,64 @@ exports.deleteSubscription = async(req, res) => {
             }
         }
     )
+}
+
+exports.addSubscription = async(req, res) => {
+    // Validate Request
+    if(!req.body) {
+        return res.status(400).send({
+            message: "request body can't be empty"
+        });
+    }
+    // force a subscription to have blockchain url & contract address not empty
+    if(req.body.blockchain_url !== '' && req.body.contract_address == '') {
+        console.log("You need to also provide the contract address");
+        return res.status(400).send({
+            message: "You need to also provide the contract address"
+        });
+    }
+    else if(req.body.blockchain_url == '' && req.body.contract_address !== '') {
+        console.log("You need to also provide the blockchain url");
+        return res.status(400).send({
+            message: "You need to also provide the blockchain url"
+        });
+    }
+    else if(req.body.blockchain_url == '' && req.body.contract_address == '') {
+        console.log("You need to provide the blockchain url & the contract address");
+        return res.status(400).send({
+            message: "You need to provide the blockchain url & the contract address"
+        });
+    }
+    // Now everything is good
+    // Begin add process
+    // add the new subscription to nedb subs if it's not already existant
+    subs_db.findOne(
+        {
+            userId: req.params.userId,
+            subscription: req.body
+        },
+        function(err, doc) {
+            if(!doc) {
+                // we don't have a duplicate for the new subscription, so we insert it
+                subs_db.insert({
+                    userId: req.params.userId,
+                    subscription: req.body
+                });
+            }
+        }
+    );
+    // return the subs for the current user
+    subs_db.find(
+        {
+            userId: req.params.userId
+        },
+        function(err, docs) {
+            if(docs) {
+                for(doc in docs) {
+                    doc = doc.subscription;
+                }
+            }
+            res.json({subscriptions: docs});
+        }
+    );
 }

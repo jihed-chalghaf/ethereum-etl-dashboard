@@ -81,6 +81,9 @@ module.exports = (app) => {
     // patch the subscription (deleting means making it empty in our case)
     router.patch('/users/:userId/subscriptions', users.deleteSubscription);
 
+    // add a new subscription for a user
+    router.post('/users/:userId/subscription', users.addSubscription);
+
     // Login
     router.post('/login', auth.login);
 

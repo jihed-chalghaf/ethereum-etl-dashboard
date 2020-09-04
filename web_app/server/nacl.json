@@ -29,7 +29,7 @@
       },
       {
         "resource": "users/:userId/subscription",
-        "methods": ["PATCH", "DELETE"],
+        "methods": ["PATCH", "DELETE", "POST"],
         "action": "deny"
       },
       {
@@ -79,7 +79,7 @@
       },
       {
         "resource": "users/:userId/subscription",
-        "methods": ["GET", "PATCH"],
+        "methods": ["GET", "PATCH", "POST"],
         "action": "allow"
       },
       {

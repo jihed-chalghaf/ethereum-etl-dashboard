@@ -9,7 +9,6 @@ import { Subscription } from 'src/app/models/subscription.model';
 import { SocketioService } from 'src/app/services/socketio.service';
 import Swal from 'sweetalert2';
 import {MatSnackBar} from '@angular/material';
-import {HttpParams} from '@angular/common/http';
 
 @Component({
   selector: 'app-subscription',
@@ -20,10 +19,12 @@ export class SubscriptionComponent implements OnInit {
 
   currentUser: User = new User();
   currentSubscription: Subscription = new Subscription();
-  //subscriptionToCreate: FormGroup;
   subscriptions: any[];
   currentPage: number;
   sizePage: number;
+  clicked: Boolean;
+  new_subscription: any;
+  subs_in_current_page: any[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -35,39 +36,40 @@ export class SubscriptionComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.clicked = false;
+    this.new_subscription = {
+      blockchain_url: '',
+      contract_address: '',
+      event_topic: ''
+    };
     // fetch profile from back
     this.currentPage = 1;
     this.sizePage = 4;
-    let params: any;
-    const selectedPage = this.currentPage ;
     this.crudService.getOne(API_URL+ USERS, this.userService.getCurrentUser().id).subscribe(
       (res) => {
         this.currentUser = res;
         this.currentSubscription = this.currentUser.subscription;
         // get the subscriptions array from nedb
-        params = new HttpParams().set('page', selectedPage.toString())
-        .set('perPage', this.sizePage.toString());
-        this.crudService.getAllWithParams(`${API_URL + USERS}/${this.currentUser.id + SUBSCRIPTIONS}`, params).subscribe(
+        this.crudService.getAll(`${API_URL + USERS}/${this.currentUser.id + SUBSCRIPTIONS}`).subscribe(
           (subs) => {
             this.subscriptions = subs.subscriptions;
             console.log("SUBS => ", this.subscriptions);
-            //this.initializeForm();
+            this.setSubsPerPage();
           }
         );
       }
     );
-    /*this.subscriptionToCreate= this.formBuilder.group({
-      blockchain_url: '',
-      contract_address: '',
-      event_topic: ''
-    });*/
   }
 
-  /*initializeForm(){
-    this.subscriptionToCreate.controls['blockchain_url'].setValue(this.currentUser.subscription?.blockchain_url);
-    this.subscriptionToCreate.controls['contract_address'].setValue(this.currentUser.subscription?.contract_address);
-    this.subscriptionToCreate.controls['event_topic'].setValue(this.currentUser.subscription?.event_topic);
-  }*/
+  setSubsPerPage() {
+    this.subs_in_current_page = [];
+    for(let i = (this.currentPage - 1)* this.sizePage,j = 0; i < this.currentPage * this.sizePage; i++) {
+      if(this.subscriptions[i]) {
+        this.subs_in_current_page[j] = this.subscriptions[i];
+        j++;
+      }
+    }
+  }
 
   submit(subscription){
     console.log('submitted');
@@ -131,6 +133,7 @@ export class SubscriptionComponent implements OnInit {
             subs => {
               this.subscriptions = subs.subscriptions;
               console.log("SUBS => ", this.subscriptions);
+              this.setSubsPerPage();
               // reinitiate the change stream with the new pipeline
               var currentUser = this.userService.getCurrentUser();
               var pipeline = {
@@ -144,7 +147,7 @@ export class SubscriptionComponent implements OnInit {
               Swal.fire({
                 text: 'Deleted Successfully',
                 icon: 'success',
-                timer: 2000
+                timer: 3000
               });
               // retrieve the current socket instance then emit the updateSubscription event to the server
               this.socketioService.updateSubscription(pipeline);
@@ -160,15 +163,55 @@ export class SubscriptionComponent implements OnInit {
           timer: 8000
         });
         }
-      )
+      );
   }
 
-  addSubscription(subscription) {
-    this.userService.addSubscription(this.userService.getCurrentUser().id, subscription);
+  addSubscription() {
+    this.userService.addSubscription(this.userService.getCurrentUser().id, this.new_subscription)
+      .subscribe(
+        result => {
+          console.log(result.body);
+          this.userService.getSubscriptions(this.currentUser.id).subscribe(
+            subs => {
+              this.subscriptions = subs.subscriptions;
+              console.log("SUBS => ", this.subscriptions);
+              this.setSubsPerPage();
+              this.clicked = false;
+              this.new_subscription['blockchain_url'] = this.new_subscription['contract_address'] = this.new_subscription['event_topic'] = '';
+              console.log('new sub after reset', this.new_subscription);
+              Swal.fire({
+                text: 'Added Successfully',
+                icon: 'success',
+                timer: 3000
+              });
+            }
+          );
+        },
+        error => {
+          console.log(error);
+          //display an alert showing update failure
+          Swal.fire({
+            html: `Add Failed<br>error: ${error.error.message}`,
+            icon: 'error',
+            timer: 8000
+          });
+        }
+      );
+  }
+
+  toggleClick() {
+    this.clicked = true;
   }
 
   openSnackBar(message: string, action: string) {
     this._snackBar.open(message);
+  }
+
+  paginate(page_nb) {
+    console.log(page_nb);
+    this.currentPage = page_nb;
+    this.setSubsPerPage();
+    console.log(this.subs_in_current_page);
   }
 
 }

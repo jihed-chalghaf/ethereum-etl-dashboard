@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import Chart from 'chart.js';
 import { SocketioService } from 'src/app/services/socketio.service';
 import { ActivatedRoute } from '@angular/router';
+import { User } from 'src/app/models/user.model';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,10 +25,12 @@ export class DashboardComponent implements OnInit {
   private eventTopicsData = [];
   private transactionsData = [];
   private labelString: any;
+  private currentUser: User;
 
   constructor(
     private socketioService: SocketioService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private userService: UserService
   ) { }
 
   assignMetrics() {
@@ -136,7 +140,12 @@ export class DashboardComponent implements OnInit {
     this.data = this.eventTopicsData;
   }
 
+  getCurrentUser() {
+    this.currentUser = this.userService.getCurrentUser();
+  }
+
   ngOnInit() {
+    this.getCurrentUser();
     this.labelString = 'Events Emitted';
     this.resetData();
     this.initializeChart();

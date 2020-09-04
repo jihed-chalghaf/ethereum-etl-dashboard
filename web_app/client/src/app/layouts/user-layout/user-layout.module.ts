@@ -10,6 +10,7 @@ import { EnumToArrayPipe } from 'src/app/pipes/enum-to-array.pipe';
 import { SubscriptionComponent } from './pages/subscription/subscription.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import {PaginatorModule} from 'primeng/paginator';
 
 
 
@@ -28,7 +29,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     ReactiveFormsModule,
     RouterModule.forChild(UserLayoutRoutes),
     NgZorroAntdModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    PaginatorModule
   ]
 })
 export class UserLayoutModule { }

@@ -24,9 +24,9 @@
           <div class="card card-stats mb-4 mb-xl-0">
             <div class="card-body">
               <div class="row">
-                <div class="col" *ngIf="this.eventTopicsEmitted">
+                <div class="col" *ngIf="this.currentUser">
                   <h5 class="card-title text-uppercase text-muted mb-0">Blockchain URL</h5>
-                  <span class="h3 font-weight-bold mb-0">{{this.subscribedUsersCount[0]?.blockchain_url}}</span>
+                  <span class="h3 font-weight-bold mb-0">{{this.currentUser?.subscription.blockchain_url}}</span>
                 </div>
                 <div class="col-auto">
                   <div class="icon icon-shape bg-info text-white rounded-circle shadow">
@@ -60,9 +60,9 @@
           <div class="card card-stats mb-4 mb-xl-0">
             <div class="card-body">
               <div class="row">
-                <div class="col" *ngIf="this.eventTopicsEmitted">
+                <div class="col" *ngIf="this.currentUser">
                   <h5 class="card-title text-uppercase text-muted mb-0">Contract Address</h5>
-                  <span class="h3 font-weight-bold mb-0">{{this.eventTopicsEmitted[0]?.contract_address}}</span>
+                  <span class="h3 font-weight-bold mb-0">{{this.currentUser?.subscription.contract_address}}</span>
                 </div>
                 <div class="col-auto">
                   <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
