@@ -10,11 +10,13 @@ import { IMG_URL } from 'src/app/globals/global_variables';
 import { LocalService } from 'src/app/services/local.service';
 import { SocketioService } from 'src/app/services/socketio.service';
 import Swal from 'sweetalert2';
+import { KeysPipe } from 'src/app/pipes/keys.pipe';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss']
+  styleUrls: ['./navbar.component.scss'],
+  providers: [KeysPipe]
 })
 export class NavbarComponent implements OnInit, DoCheck {
   public connected = false;
@@ -29,6 +31,9 @@ export class NavbarComponent implements OnInit, DoCheck {
   thStyle = "border: 1px solid black;border-collapse: collapse;padding: 5px;text-align: middle;background-color: #03a9fc;color: white;";
   tdStyle = "border: 1px solid black;border-collapse: collapse;padding: 5px;";
   trStyle = "background-color: #f2f2f2;"
+  private clicked: Boolean = false;
+  private event: any;
+  private rows = '';
 
   constructor(
     location: Location,  
@@ -38,12 +43,36 @@ export class NavbarComponent implements OnInit, DoCheck {
     private userService: UserService,
     private imageService: ImageService,
     private localService: LocalService,
-    private socketioService: SocketioService
+    private socketioService: SocketioService,
+    private keys: KeysPipe
     ) {
     this.location = location;
   }
 
+  toggleDisplay() {
+    this.clicked = !this.clicked;
+  }
+
+  displayNotif(event) {
+    this.event = event.result;
+    this.toggleDisplay();
+    console.log(event);
+    this.events = this.events.filter(obj => obj !== event);
+  }
+
+  prepareParams(event) {
+    this.rows = '';
+    for(let index=0; index < event.result['_length_']; index ++) {
+      this.rows = this.rows + 
+      `<tr style="${this.trStyle}">
+        <td style="${this.tdStyle}">${index}</td>
+        <td style="${this.tdStyle}">${event.result[index]}</td>
+      </tr>`
+    }
+  }
+
   displayNotification(event) {
+    this.prepareParams(event);
     Swal.fire({
       //position: 'top-end',
       icon: 'info',
@@ -55,18 +84,7 @@ export class NavbarComponent implements OnInit, DoCheck {
                 <th style="${this.thStyle}">Id</th>
                 <th style="${this.thStyle}">Value</th>
               </tr>
-              <tr style="${this.trStyle}">
-                <td style="${this.tdStyle}">1</td>
-                <td style="${this.tdStyle}">${event.result[0]}</td>
-              </tr>
-              <tr>
-                <td style="${this.tdStyle}">2</td>
-                <td style="${this.tdStyle}">${event.result[1]}</td>
-              </tr>
-              <tr style="${this.trStyle}">
-                <td style="${this.tdStyle}">3</td>
-                <td style="${this.tdStyle}">${event.result[2]}</td>
-              </tr>
+              ${this.rows}
              </table>`,
       showConfirmButton: true,
       confirmButtonColor: '#3085d6',
@@ -91,6 +109,7 @@ export class NavbarComponent implements OnInit, DoCheck {
   }
 
   ngOnInit() {
+    this.keys = new KeysPipe();
     this.listTitles = ROUTES.filter(listTitle => listTitle);
     this.connected = this.authService.isLogged();
     this.currentUser = this.userService.getCurrentUser();

@@ -11,6 +11,7 @@ import { SubscriptionComponent } from './pages/subscription/subscription.compone
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import {PaginatorModule} from 'primeng/paginator';
+import { KeysPipe } from 'src/app/pipes/keys.pipe';
 
 
 
@@ -31,6 +32,9 @@ import {PaginatorModule} from 'primeng/paginator';
     NgZorroAntdModule,
     MatSnackBarModule,
     PaginatorModule
+  ],
+  providers: [
+    KeysPipe
   ]
 })
 export class UserLayoutModule { }

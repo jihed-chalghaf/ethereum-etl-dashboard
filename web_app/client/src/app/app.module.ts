@@ -20,6 +20,7 @@ import { UserLayoutComponent } from './layouts/user-layout/user-layout.component
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { SocketioService } from './services/socketio.service';
+import { KeysPipe } from './pipes/keys.pipe';
 
 
 @NgModule({
@@ -40,7 +41,8 @@ import { SocketioService } from './services/socketio.service';
     AppComponent,
     AdminLayoutComponent,
     AuthLayoutComponent,
-    UserLayoutComponent
+    UserLayoutComponent,
+    KeysPipe
   ],
   providers: [
     AuthInterceptorProvider,
@@ -48,8 +50,12 @@ import { SocketioService } from './services/socketio.service';
     {
       provide: NZ_I18N, useValue: en_US
     },
-    SocketioService
+    SocketioService,
+    KeysPipe
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  exports: [
+    KeysPipe
+  ]
 })
 export class AppModule { }
