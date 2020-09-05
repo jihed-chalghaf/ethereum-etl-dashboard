@@ -14,6 +14,7 @@ import { TablesComponent } from '../../pages/tables/tables.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UsersComponent } from './pages/users/users.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NgZorroAntdModule } from 'ng-zorro-antd';
 // import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
@@ -24,7 +25,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     HttpClientModule,
     NgbModule,
     ClipboardModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    NgZorroAntdModule
   ],
   declarations: [
     DashboardComponent,

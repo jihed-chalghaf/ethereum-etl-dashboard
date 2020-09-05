@@ -71,6 +71,16 @@ export class SubscriptionComponent implements OnInit {
     }
   }
 
+  deactivateSubscription() {
+    const jsonSubscription = {
+      id: this.currentSubscription.id,
+      blockchain_url: '',
+      contract_address: '',
+      event_topic: ''
+    };
+    this.submit(jsonSubscription);
+  }
+
   submit(subscription){
     console.log('submitted');
     const jsonSubscription = {
@@ -118,6 +128,14 @@ export class SubscriptionComponent implements OnInit {
       }
     );
     this.router.navigate(['/dashboard', {previousUrl: 'subscribe'}]);
+  }
+
+  compareSubs(subscription) {
+    return(
+      subscription.blockchain_url == this.currentSubscription.blockchain_url && 
+      subscription.contract_address == this.currentSubscription.contract_address &&
+      subscription.event_topic == this.currentSubscription.event_topic
+      );
   }
 
   deleteSubscription(subscription) {

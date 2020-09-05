@@ -14,25 +14,24 @@ export class UsersComponent implements OnInit {
   currentPage: number;
   sizePage: number;
   users: User[];
+  users_in_current_page: any[] = [];
   constructor( private _snackBar: MatSnackBar, private crudService: CrudService) { }
 
   ngOnInit(): void {
     this.currentPage = 1;
     this.sizePage = 4;
-    this.retreiveUsers();
+    this.retrieveUsers();
   }
 
-  retreiveUsers() {
-    let params: any;
+  retrieveUsers() {
     const selectedPage = this.currentPage ;
-    params = new HttpParams().set('page', selectedPage.toString())
-      .set('perPage', this.sizePage.toString());
-    this.crudService.getAllWithParams(API_URL + USERS, params).subscribe(
+    this.crudService.getAll(API_URL + USERS).subscribe(
       (response) => {
         this.users = response;
         this.currentPage = 1;
         console.log('*******************************');
         console.log(this.users);
+        this.setUsersPerPage();
       },
       (error =>  {
         console.log(error);
@@ -51,5 +50,22 @@ export class UsersComponent implements OnInit {
 
   openSnackBar(message: string, action: string) {
     this._snackBar.open(message);
+  }
+
+  paginate(page_nb) {
+    console.log(page_nb);
+    this.currentPage = page_nb;
+    this.setUsersPerPage();
+    console.log(this.users_in_current_page);
+  }
+
+  setUsersPerPage() {
+    this.users_in_current_page = [];
+    for(let i = (this.currentPage - 1)* this.sizePage,j = 0; i < this.currentPage * this.sizePage; i++) {
+      if(this.users[i]) {
+        this.users_in_current_page[j] = this.users[i];
+        j++;
+      }
+    }
   }
 }

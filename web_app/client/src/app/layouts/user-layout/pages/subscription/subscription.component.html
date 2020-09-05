@@ -40,15 +40,16 @@
                     {{sub.subscription.event_topic}}
                   </td>
                   <td>
-                    <span *ngIf="!sub.deleted" class="badge badge-dot">
-                      <i class="bg-success"></i> available
+                    <span *ngIf="compareSubs(sub.subscription)" class="badge badge-dot">
+                      <i class="bg-success"></i> active
                     </span>
-                    <span *ngIf="sub.deleted" class="badge badge-dot mr-4">
-                      <i class="bg-danger"></i> deleted
+                    <span *ngIf="!compareSubs(sub.subscription)" class="badge badge-dot mr-4">
+                      <i class="bg-primary"></i> available
                     </span>
                   </td>
                   <td class="text-right">
-                    <button (click)="submit(sub.subscription)" class="btn btn-success" style="display:inline-block;">activate</button>
+                    <button *ngIf="!compareSubs(sub.subscription)" (click)="submit(sub.subscription)" class="btn btn-success" style="display:inline-block;">activate</button>
+                    <button *ngIf="compareSubs(sub.subscription)" (click)="deactivateSubscription()" class="btn btn-danger" style="display:inline-block;">deactivate</button>
                     <button (click)="deleteSubscription(sub.subscription)" class="btn btn-danger" style="display:inline-block;">X</button>
                   </td>
                 </tr>

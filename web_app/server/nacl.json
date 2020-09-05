@@ -14,13 +14,8 @@
       },
       {
         "resource": "users/:userId",
-        "methods": ["GET", "DELETE"],
+        "methods": ["GET", "DELETE", "PATCH"],
         "action": "allow"
-      },
-      {
-        "resource": "users/:userId",
-        "methods": ["PATCH"],
-        "action": "deny"
       },
       {
         "resource": "users/:userId/subscription",

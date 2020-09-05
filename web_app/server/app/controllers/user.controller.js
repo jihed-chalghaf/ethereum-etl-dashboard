@@ -223,52 +223,25 @@ exports.update = async(req, res) => {
 
 // Updates only the user's subscription
 exports.updateSubscription = async(req, res) => {
-    // Validate Request
-    if(!req.body) {
-        return res.status(400).send({
-            message: "request body can't be empty"
-        });
-    }
-    // force a subscription to have blockchain url & contract address not empty
-    if(req.body.blockchain_url !== '' && req.body.contract_address == '') {
-        console.log("You need to also provide the contract address");
-        return res.status(400).send({
-            message: "You need to also provide the contract address"
-        });
-    }
-    else if(req.body.blockchain_url == '' && req.body.contract_address !== '') {
-        console.log("You need to also provide the blockchain url");
-        return res.status(400).send({
-            message: "You need to also provide the blockchain url"
-        });
-    }
-    else if(req.body.blockchain_url == '' && req.body.contract_address == '') {
-        console.log("You need to provide the blockchain url & the contract address");
-        return res.status(400).send({
-            message: "You need to provide the blockchain url & the contract address"
-        });
-    }
-    // Now everything is good
     // Begin with the update process
-    else {
-        subscriptionController.update(req.body)
-            .then(subscription => {
-                if(subscription == false) {
-                    console.log("subscription is false");
-                    return res.status(404).send({
-                        message: "failed to update the user's subscription"
-                    });
-                }
-                console.log("Subscription Updated => ", subscription);
-                // updated subscription successfully
-                // updating user object in db finally
-                User.findByIdAndUpdate(
-                    { _id: req.params.userId },
-                    {
-                        'subscription': subscription
-                    },
-                    { new: true }
-                    ).then(user => {
+    subscriptionController.update(req.body)
+        .then(subscription => {
+            if(subscription == false) {
+                console.log("subscription is false");
+                return res.status(404).send({
+                    message: "failed to update the user's subscription"
+                });
+            }
+            console.log("Subscription Updated => ", subscription);
+            // updated subscription successfully
+            // updating user object in db finally
+            User.findByIdAndUpdate(
+                { _id: req.params.userId },
+                {
+                    'subscription': subscription
+                },
+                { new: true }
+                ).then(user => {
                     if(!user) {
                         return res.status(404).send({
                             message: "User not found with id " + req.params.userId
@@ -290,7 +263,7 @@ exports.updateSubscription = async(req, res) => {
                             subscription: new_sub
                         },
                         function(err, doc) {
-                            if(!doc) {
+                            if(!doc && new_sub.blockchain_url !== '') {
                                 // we don't have a duplicate for the new subscription, so we insert it
                                 subs_db.insert({
                                     userId: req.params.userId,
@@ -334,7 +307,6 @@ exports.updateSubscription = async(req, res) => {
                     message: "Error updating subscription with id " + req.body.id
                 });
             });
-    }
 };
 
 

@@ -57,10 +57,6 @@
             <i class="ni ni-single-02"></i>
             <span>Dashboard</span>
           </a>
-          <a *ngIf="currentUser.role.toUpperCase() === 'ADMIN'" routerLinkActive="active" [routerLink]="['/admin/dashboard']" class="dropdown-item">
-            <i class="ni ni-single-02"></i>
-            <span>Dashboard</span>
-          </a>
           <a *ngIf="connected" routerLinkActive="active" [routerLink]="['/user-profile']" class="dropdown-item">
             <i class="ni ni-single-02"></i>
             <span>Profile</span>

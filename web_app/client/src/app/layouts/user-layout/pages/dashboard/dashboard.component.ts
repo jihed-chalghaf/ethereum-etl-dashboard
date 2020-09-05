@@ -141,7 +141,11 @@ export class DashboardComponent implements OnInit {
   }
 
   getCurrentUser() {
-    this.currentUser = this.userService.getCurrentUser();
+    this.userService.getUserById(this.userService.getCurrentUser().id).subscribe(
+      user => {
+        this.currentUser = user;
+      }
+    );
   }
 
   ngOnInit() {
