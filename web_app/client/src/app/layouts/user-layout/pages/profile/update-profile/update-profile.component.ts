@@ -131,15 +131,15 @@ export class UpdateProfileComponent implements OnInit {
         console.log(result);
         // update current user
         this.userService.saveUserLocally(result);
+        // post image
+        if(this.fileData){
+          this.imageService.postImage(this.fileData).subscribe(data => {
+            console.log(data);
+          });
+        }
+        this.router.navigate(['/user-profile']);
       }
     );
-    // post image
-    if(this.fileData){
-      this.imageService.postImage(this.fileData).subscribe(data => {
-        console.log(data);
-      });
-    }
-    this.router.navigate(['/user-profile']);
   }
 
 }

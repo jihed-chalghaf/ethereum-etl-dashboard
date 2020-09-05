@@ -76,7 +76,7 @@
           </a>
         </div>
       </li>
-      <li *ngIf="isLogged" class="nav-item" ngbDropdown placement="bottom-right">
+      <li *ngIf="isLogged && this.currentUser.role === 'USER'" class="nav-item" ngbDropdown placement="bottom-right">
         <a role="button" ngbDropdownToggle>
           <div class="media align-items-center">
             <span class="p-overlay-badge">
