@@ -20,7 +20,7 @@
     "express": "^4.16.4",
     "express-acl": "^2.0.8",
     "express-ejs-layouts": "^2.5.0",
-    "express-handlebars": "^3.0.0",
+    "express-handlebars": "^5.3.1",
     "express-session": "^1.17.1",
     "express-unless": "^0.5.0",
     "ip": "^1.1.5",
